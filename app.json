@@ -1,0 +1,35 @@
+{
+  "expo": {
+    "name": "enablefit",
+    "slug": "enablefit",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "resizeMode": "contain",
+      "backgroundColor": "#292c41"
+    },
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#ffffff"
+      }
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      [
+         "expo-font", 
+          {
+            "fonts": ["node_modules/@expo-google-fonts/shadows-into-light/ShadowsIntoLight_400Regular.ttf"]
+          }
+      
+      ] 
+    ]
+  }
+}
