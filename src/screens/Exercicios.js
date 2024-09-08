@@ -1,7 +1,15 @@
-import { View, Text, SectionList, StyleSheet, Button } from "react-native";
+import {
+  View,
+  Text,
+  SectionList,
+  StyleSheet,
+  Button,
+  ActivityIndicator,
+} from "react-native";
 import React, { useState } from "react";
 import { createStackNavigator } from "@react-navigation/stack";
 import Modal from "../components/Modal";
+import { useFonts } from "expo-font";
 
 const DATA = [
   {
@@ -76,6 +84,26 @@ const ExerciciosNavigator = () => {
 };
 
 const Exercicios = ({ navigation }) => {
+  const [loaded] = useFonts({
+    "shadows-into-light": require("../../assets/fonts/ShadowsIntoLight-Regular.ttf"),
+    Urbanist: require("../../assets/fonts/Urbanist-VariableFont_wght.ttf"),
+  });
+
+  if (!loaded) {
+    return (
+      <View
+        style={{
+          flex: 1,
+          justifyContent: "center",
+          alignItems: "center",
+          backgroundColor: "#292c41",
+        }}
+      >
+        <ActivityIndicator size={"large"} />
+      </View>
+    );
+  }
+
   return (
     <SectionList
       style={styles.SectionList}
@@ -93,7 +121,7 @@ const Exercicios = ({ navigation }) => {
         </View>
       )}
       renderSectionHeader={({ section: { title } }) => (
-        <Text style={styles.header}>{title}</Text>
+        <Text style={[styles.header]}>{title}</Text>
       )}
     />
   );
@@ -104,13 +132,12 @@ const styles = StyleSheet.create({
     backgroundColor: "#292c41",
   },
   header: {
-    fontSize: 25,
+    fontSize: 30,
     color: "white",
-    fontWeight: "bold",
     paddingLeft: 15,
+    paddingBottom: 5,
     marginTop: 10,
-    borderBottomWidth: 5,
-    borderBottomColor: "white",
+    fontFamily: "Urbanist",
   },
   exerciseView: {
     flex: 1,

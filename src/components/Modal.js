@@ -1,38 +1,41 @@
-import { View, Text, Button, StyleSheet, Pressable, Dimensions } from "react-native";
+import {
+  View,
+  Text,
+  Button,
+  StyleSheet,
+  Pressable,
+  Dimensions,
+} from "react-native";
 import { Video, ResizeMode } from "expo-av";
 import * as React from "react";
 import { useState } from "react";
 
-const windowWidth = (Dimensions.get('window').width)
-const windowHeight = (Dimensions.get('window').height)
+const windowWidth = Dimensions.get("window").width;
+const windowHeight = Dimensions.get("window").height;
 
 const Modal = ({ navigation, route }) => {
   const video = React.useRef(null);
   return (
     <View style={styles.ViewStyle}>
       <Text style={styles.TitleStyle}>{route.params.title}</Text>
-        <Video
-          style={styles.video}
-          ref={video}
-          source={
-            require("../../assets/videos/pullup.mp4")
-          }
-          isLooping
-          isMuted={false}
-          shouldPlay
-          volume={0.3}
-          
-        />
-        <Text style={styles.mainTextStyle}>
-          {/* Colocar o mainText aqui.*/}"Lorem ipsum dolor sit amet,
-          consectetur adipiscing elit, sed do eiusmod tempor incididunt ut
-          labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud
-          exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
-          Duis aute irure dolor in reprehenderit in voluptate velit esse cillum
-          dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non
-          proident, sunt in culpa qui officia deserunt mollit anim id est
-          laborum."
-        </Text>
+      <Video
+        style={styles.video}
+        ref={video}
+        source={require("../../assets/videos/pullup.mp4")}
+        isLooping
+        isMuted={false}
+        shouldPlay
+        volume={0.3}
+      />
+      <Text style={styles.mainTextStyle}>
+        {/* Colocar o mainText aqui.*/}"Lorem ipsum dolor sit amet, consectetur
+        adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore
+        magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco
+        laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor
+        in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
+        pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa
+        qui officia deserunt mollit anim id est laborum."
+      </Text>
       <Pressable
         onPress={() => {
           navigation.goBack();
@@ -70,10 +73,10 @@ const styles = StyleSheet.create({
   },
   ViewStyle: {
     flex: 1,
-    alignItems: 'center'
+    alignItems: "center",
   },
   videoView: {
-    justifyContent: 'center',
+    justifyContent: "center",
   },
   video: {
     width: windowWidth,

@@ -11,25 +11,34 @@
       "backgroundColor": "#292c41"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "googleServicesFile": "./GoogleService-Info.plist"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
-      }
+        "backgroundColor": "#ffffff",
+        "googleServicesFile": "./google-services.json"
+      },
+      "package": "com.srreykh.enablefit"
     },
     "web": {
       "favicon": "./assets/favicon.png"
     },
     "plugins": [
       [
-         "expo-font", 
-          {
-            "fonts": ["node_modules/@expo-google-fonts/shadows-into-light/ShadowsIntoLight_400Regular.ttf"]
-          }
-      
-      ] 
-    ]
+        "expo-font",
+        {
+          "fonts": [
+            "node_modules/@expo-google-fonts/shadows-into-light/ShadowsIntoLight_400Regular.ttf"
+          ]
+        }
+      ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "df7214ac-ff82-4632-a1f1-045e724c5d4f"
+      }
+    }
   }
 }
