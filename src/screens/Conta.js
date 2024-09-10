@@ -39,7 +39,6 @@ const Conta = () => {
   const [emailInput, setEmailInput] = useState(false);
   const [emailPasswordRequest, setEmailPasswordRequest] = useState("");
   const [isToggleVerificar, setIsToggleVerificar] = useState(true);
-  const [contador, setContador] = useState(Number)
   const [loaded] = useFonts({
     ShadowsIntoLight: require("../../assets/fonts/ShadowsIntoLight-Regular.ttf"),
     Urbanist: require("../../assets/fonts/Urbanist-VariableFont_wght.ttf"),
@@ -57,28 +56,21 @@ const Conta = () => {
       return () => clearInterval(interval);
     });
   }, []);
-  
+
   useEffect(() => {
     const timerBtn = setTimeout(() => {
       setTimerDelete(true);
-    }, 5000)
+    }, 5000);
     return () => clearTimeout(timerBtn);
   }, [timerDelete]);
-  
+
   useEffect(() => {
     const time_out = setTimeout(() => {
-      setIsToggleVerificar(!isToggleVerificar)
-    }, 5000) 
-    
-    const contador = setInterval(() => {
-      if (contador > 1) 
-        setContador(contador - 1)
-    }, 30000)
-    return () => (
-      clearTimeout(time_out),
-      clearInterval(contador)
-    )
-  }, [isToggleVerificar])
+      setIsToggleVerificar(!isToggleVerificar);
+    }, 15000);
+
+    return () => clearTimeout(time_out);
+  }, [isToggleVerificar]);
 
   async function checkEmail() {
     if (auth.currentUser) {
@@ -86,31 +78,32 @@ const Conta = () => {
       setVerified(auth.currentUser.emailVerified);
     }
   }
-  
+
   async function mudarEmail() {
     if (emailText == "") return setEmailInput(false);
-    if (auth.currentUser.emailVerified == false)
-      return verificarEmail()
-  
-    console.log(auth.currentUser)
-    console.log(emailText)
-    console.log(emailPasswordRequest)
-      
-      try {
-        await reAuth()
-        console.log(emailText)
-        await auth.currentUser.reload();
-        await updateEmail(auth.currentUser, emailText);
-        await verificarEmail()
-        Toast.show("E-mail trocado, confira sua caixa de e-mail para verificar seu novo e-mail");
-      } catch (e) {
+    if (auth.currentUser.emailVerified == false) return verificarEmail();
+
+    console.log(auth.currentUser);
+    console.log(emailText);
+    console.log(emailPasswordRequest);
+
+    try {
+      await reAuth();
+      console.log(emailText);
+      await auth.currentUser.reload();
+      await updateEmail(auth.currentUser, emailText);
+      await verificarEmail();
+      Toast.show(
+        "E-mail trocado, confira sua caixa de e-mail para verificar seu novo e-mail",
+      );
+    } catch (e) {
       if (e.code == "auth/invalid-email") return Toast.show("E-mail inválido");
       if (e.code == "auth/email-already-in-use")
         return Toast.show("E-mail já em uso por outro usuário");
       if (e.code == "auth/requires-recent-login")
         return Toast.show(
           "Seu último login não se encaixa dentro das políticas de seguraça",
-        );      
+        );
       Toast.show(e.message);
     } finally {
       setEmailInput(false);
@@ -124,7 +117,8 @@ const Conta = () => {
         Toast.show("Verifique sua caixa de e-mail");
       })
       .catch((e) => {
-        if (e.code == 'auth/too-many-requests') return Toast.show("Muitas solicitações, aguarde...")
+        if (e.code == "auth/too-many-requests")
+          return Toast.show("Muitas solicitações, aguarde...");
         Toast.show(e.message);
       });
   }
@@ -136,7 +130,7 @@ const Conta = () => {
       return Toast.show("Senhas não se coincidem");
 
     try {
-      await reAuth()
+      await reAuth();
       await updatePassword(auth.currentUser, passwordText);
       Toast.show("Senha trocada com sucesso!");
     } catch (e) {
@@ -152,7 +146,7 @@ const Conta = () => {
 
   async function deletarUser() {
     try {
-      await reAuth()
+      await reAuth();
       await deleteUser(auth.currentUser);
       Toast.show("Conta deletada com sucesso.");
     } catch (e) {
@@ -166,12 +160,16 @@ const Conta = () => {
     }
   }
 
-  async function reAuth() {      
+  async function reAuth() {
     try {
-      const credential = EmailAuthProvider.credential(auth.currentUser.email, emailPasswordRequest);
+      const credential = EmailAuthProvider.credential(
+        auth.currentUser.email,
+        emailPasswordRequest,
+      );
       await reauthenticateWithCredential(auth.currentUser, credential);
-    } catch(e) {
-      if (e.code == 'auth/invalid-credential') return Toast.show("Senha inválida")
+    } catch (e) {
+      if (e.code == "auth/invalid-credential")
+        return Toast.show("Senha inválida");
       throw e;
     }
   }
@@ -219,11 +217,11 @@ const Conta = () => {
             <View style={styles.viewVerificar}>
               <Text style={styles.verificarText}>Email não verificado</Text>
               <Button
-                title={`Verificar e-mail` + isToggleVerificar ? null : contador }
-                  onPress={() => { 
-                    verificarEmail();
-                    setIsToggleVerificar(!isToggleVerificar)
-                  }}
+                title={"Verificar e-mail"}
+                onPress={() => {
+                  verificarEmail();
+                  setIsToggleVerificar(!isToggleVerificar);
+                }}
                 color="blue"
                 disabled={!isToggleVerificar}
               />
@@ -368,7 +366,7 @@ const Conta = () => {
                   <Text style={styles.modalLogOffText}>
                     VOCÊ QUER APAGAR SUA CONTA?
                     <Text style={{ fontWeight: "bold", color: "red" }}>
-                    ESSA AÇÃO É IRREVERSÍVEL!
+                      ESSA AÇÃO É IRREVERSÍVEL!
                     </Text>
                   </Text>
                   <TextInput
@@ -453,7 +451,7 @@ const styles = StyleSheet.create({
     height: 35,
     backgroundColor: "white",
     borderRadius: 5,
-    borderColor: 'black',
+    borderColor: "black",
     borderWidth: 1,
     color: "black",
     paddingLeft: 5,
