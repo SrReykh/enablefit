@@ -83,16 +83,11 @@ const Conta = () => {
     if (emailText == "") return setEmailInput(false);
     if (auth.currentUser.emailVerified == false) return verificarEmail();
 
-    console.log(auth.currentUser);
-    console.log(emailText);
-    console.log(emailPasswordRequest);
-
     try {
       await reAuth();
       console.log(emailText);
       await auth.currentUser.reload();
       await updateEmail(auth.currentUser, emailText);
-      await verificarEmail();
       Toast.show(
         "E-mail trocado, confira sua caixa de e-mail para verificar seu novo e-mail",
       );
@@ -168,7 +163,10 @@ const Conta = () => {
       );
       await reauthenticateWithCredential(auth.currentUser, credential);
     } catch (e) {
-      if (e.code == "auth/invalid-credential")
+      if (
+        e.code == "auth/invalid-credential" ||
+        e.code == "auth/invalid-credential"
+      )
         return Toast.show("Senha inválida");
       throw e;
     }

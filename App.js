@@ -1,15 +1,12 @@
-import { StyleSheet, Text, View, ActivityIndicator } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { ActivityIndicator } from "react-native";
 import Tabs from "./src/components/Tabs";
-import Exercicios from "./src/screens/Exercicios";
-import Treino from "./src/screens/Treino";
-import Conta from "./src/screens/Conta";
 import Login from "./src/screens/login/Login";
 import Cadastro from "./src/screens/login/Cadastro";
 import Recuperar from "./src/screens/login/Recuperar";
 import { useEffect, useState } from "react";
 import { onAuthStateChanged } from "firebase/auth";
-import { FIREBASE_AUTH } from "./firebaseConfig";
+import { FIREBASE_APP, FIREBASE_AUTH } from "./firebaseConfig";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { NavigationContainer } from "@react-navigation/native";
@@ -22,11 +19,14 @@ export default function App() {
   const [initializing, setInitializing] = useState(true);
 
   useEffect(() => {
-    onAuthStateChanged(FIREBASE_AUTH, (user) => {
-      setUser(user);
-      if (initializing) setInitializing(false);
+    onAuthStateChanged(FIREBASE_AUTH, (usr) => {
+      if (usr) {
+        setUser(usr);
+        console.log(usr)
+      }
+      setInitializing(false);
     });
-  }, []);
+  }, [initializing]);
 
   if (initializing) return <ActivityIndicator size="large" color="#0000ff" />;
   return (

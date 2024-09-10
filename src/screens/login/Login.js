@@ -19,7 +19,7 @@ import { useState } from "react";
 import Toast from "react-native-root-toast";
 
 import { FIREBASE_AUTH } from "../../../firebaseConfig";
-import { signInWithEmailAndPassword, signInWithPopup } from "firebase/auth";
+import { signInWithEmailAndPassword } from "firebase/auth";
 
 const windowWidth = Dimensions.get("window").width;
 const windowHeight = Dimensions.get("window").height;

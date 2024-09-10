@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "enablefit",
+    "name": "Enable Fit",
     "slug": "enablefit",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -19,7 +19,7 @@
         "backgroundColor": "#ffffff",
         "googleServicesFile": "./google-services.json"
       },
-      "package": "com.srreykh.enablefit"
+      "package": "com.whitehatboys.enablefit"
     },
     "web": {
       "favicon": "./assets/favicon.png"

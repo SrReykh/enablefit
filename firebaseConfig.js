@@ -1,9 +1,8 @@
 import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth/web-extension";
-import { FIREBASE_API_KEY } from "@env";
 
 const firebaseConfig = {
-  apiKey: FIREBASE_API_KEY,
+  apiKey: process.env.FIREBASE_API_KEY,
   authDomain: "enablefit.firebaseapp.com",
   projectId: "enablefit",
   storageBucket: "enablefit.appspot.com",
