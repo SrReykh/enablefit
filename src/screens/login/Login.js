@@ -6,7 +6,6 @@ import {
   Pressable,
   TextInput,
   Button,
-  Alert,
   ActivityIndicator,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -20,6 +19,7 @@ import Toast from "react-native-root-toast";
 
 import { FIREBASE_AUTH } from "../../../firebaseConfig";
 import { signInWithEmailAndPassword } from "firebase/auth";
+import { handleFirebaseAuthError } from "../../assets/handleFirebaseAuthError"
 
 const windowWidth = Dimensions.get("window").width;
 const windowHeight = Dimensions.get("window").height;
@@ -55,21 +55,12 @@ const LoginPage = ({ navigation }) => {
     setLoading(true);
     if (email.length == "" || password.length == "")
       return Toast.show("Preencha os campos!");
-
+    
     try {
-      const response = await signInWithEmailAndPassword(auth, email, password);
+      await signInWithEmailAndPassword(auth, email, password);
       Toast.show("Logado com sucesso!");
     } catch (e) {
-      if (e.code == "auth/invalid-email") return Toast.show("Email inválido");
-      if (e.code == "auth/user-disabled")
-        return Toast.show("Usuário desativado");
-      if (e.code == "auth/user-not-found")
-        return Toast.show("Email não cadastrado");
-      if (e.code == "auth/wrong-password") return Toast.show("Senha inválida");
-      if (e.code == "auth/invalid-credential")
-        return Toast.show("Credenciais inválidas");
-
-      Toast.show("Deu algo errado!" + e);
+      Toast.show(handleFirebaseAuthError(e))
     } finally {
       setLoading(false);
     }

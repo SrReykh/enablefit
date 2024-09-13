@@ -19,9 +19,9 @@ import Toast from "react-native-root-toast";
 
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { FIREBASE_AUTH } from "../../../firebaseConfig";
+import { handleFirebaseAuthError } from "../../assets/handleFirebaseAuthError"
 
 const windowWidth = Dimensions.get("window").width;
-const windowHeight = Dimensions.get("window").height;
 
 const LoginPage = ({ navigation }) => {
   const [loading, setLoading] = useState(false);
@@ -60,17 +60,9 @@ const LoginPage = ({ navigation }) => {
     try {
       await createUserWithEmailAndPassword(auth, email, password);
       Toast.show("Cadastrado com sucesso!");
-    } catch (e) {
-      if (e.code == "auth/email-already-in-use")
-        return Toast.show("Email já em uso!");
-      if (e.code == "auth/invalid-email") return Toast.show("Email inválido!");
-      if (e.code == "auth/weak-password")
-        return Toast.show("Senha muito fraca!");
-      if (e.code == "auth/operation-not-allowed")
-        return Toast.show("Não foi possível criar a conta!");
-      Toast.show("Não foi possível logar" + e);
-    } finally {
       setLoading(false);
+    } catch (e) {
+      Toast.show(handleFirebaseAuthError(e))
     }
   }
 

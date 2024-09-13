@@ -16,12 +16,11 @@ import {
   onAuthStateChanged,
   updatePassword,
   deleteUser,
-  reload,
-  reauthenticateWithRedirect,
   reauthenticateWithCredential,
   EmailAuthCredential,
   EmailAuthProvider,
 } from "firebase/auth";
+import { handleFirebaseAuthError } from "../assets/handleFirebaseAuthError"
 import { useFonts } from "expo-font";
 import Toast from "react-native-root-toast";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
@@ -80,29 +79,24 @@ const Conta = () => {
   }
 
   async function mudarEmail() {
-    if (emailText == "") return setEmailInput(false);
+    if (emailText == "" || emailPasswordRequest == "") return Toast.show("Preencha os campos!");
     if (auth.currentUser.emailVerified == false) return verificarEmail();
+    if (emailText == auth.currentUser.email) return Toast.show("Você já está usando esse e-mail"); 
 
     try {
-      await reAuth();
-      console.log(emailText);
+      const authSucess = await reAuth();
+      if (!authSucess) return;
+      
       await auth.currentUser.reload();
       await updateEmail(auth.currentUser, emailText);
       Toast.show(
         "E-mail trocado, confira sua caixa de e-mail para verificar seu novo e-mail",
       );
-    } catch (e) {
-      if (e.code == "auth/invalid-email") return Toast.show("E-mail inválido");
-      if (e.code == "auth/email-already-in-use")
-        return Toast.show("E-mail já em uso por outro usuário");
-      if (e.code == "auth/requires-recent-login")
-        return Toast.show(
-          "Seu último login não se encaixa dentro das políticas de seguraça",
-        );
-      Toast.show(e.message);
-    } finally {
       setEmailInput(false);
+      setEmailPasswordRequest("")
       setEmailText("");
+    } catch (e) {
+      Toast.show(handleFirebaseAuthError(e));
     }
   }
 
@@ -112,9 +106,7 @@ const Conta = () => {
         Toast.show("Verifique sua caixa de e-mail");
       })
       .catch((e) => {
-        if (e.code == "auth/too-many-requests")
-          return Toast.show("Muitas solicitações, aguarde...");
-        Toast.show(e.message);
+        Toast.show(handleFirebaseAuthError(e));
       });
   }
 
@@ -125,33 +117,30 @@ const Conta = () => {
       return Toast.show("Senhas não se coincidem");
 
     try {
-      await reAuth();
+      const authSucess = await reAuth();
+      if (!authSucess) return;
+      
       await updatePassword(auth.currentUser, passwordText);
       Toast.show("Senha trocada com sucesso!");
-    } catch (e) {
-      if (e.code == "auth/weak-password")
-        return Toast.show("Senha muito fraca!");
-      Toast.show(e.message);
-    } finally {
       setPasswordInput(false);
       setPasswordText("");
       setConfirmPasswordText("");
-    }
+    } catch (e) {
+      Toast.show(handleFirebaseAuthError(e));
+    } 
   }
 
   async function deletarUser() {
+    if (emailPasswordRequest == "") return Toast.show("Preencha os campos!");
+    
     try {
-      await reAuth();
+      const authSucess = await reAuth();
+      if (!authSucess) return;      
       await deleteUser(auth.currentUser);
+      setModalDeleteVisible(!modalDeleteVisible);
       Toast.show("Conta deletada com sucesso.");
     } catch (e) {
-      if (e.code == "auth/requires-recent-login")
-        return Toast.show(
-          "Você precisa sair e fazer log-in novamente para poder excluir sua conta",
-        );
-      if (e.code == "auth/invalid-user-token")
-        return Toast.show("Token de usuário inválido");
-      Toast.show(e.message);
+      Toast.show(handleFirebaseAuthError(e));
     }
   }
 
@@ -163,13 +152,10 @@ const Conta = () => {
       );
       await reauthenticateWithCredential(auth.currentUser, credential);
     } catch (e) {
-      if (
-        e.code == "auth/invalid-credential" ||
-        e.code == "auth/invalid-credential"
-      )
-        return Toast.show("Senha inválida");
-      throw e;
+      Toast.show(handleFirebaseAuthError(e))
+      return false;
     }
+    return true;
   }
 
   if (!loaded) {
@@ -195,22 +181,22 @@ const Conta = () => {
         <View style={styles.updateEmail}>
           <Text style={styles.emailHeader}>E-mail</Text>
           <Hr />
-          <View style={{ flexDirection: "row", gap: 5 }}>
-            <Text style={styles.currentUserText}>{auth.currentUser.email}</Text>
-            {verified ? (
-              <MaterialIcons name="verified" size={24} color="white" />
-            ) : null}
+          <View style={{ flexDirection: "column-reverse", gap: 5 }}>
+            <Text style={styles.currentUserText}>reynanandrade10@gmail.com</Text>
           </View>
           {verified ? (
-            <TouchableOpacity
-              style={styles.buttonChange}
-              onPress={() => {
-                if (!emailInput) return setEmailInput(auth.currentUser);
-                setEmailInput(false);
-              }}
-            >
-              <Text style={styles.buttonChangeText}>Mudar e-mail</Text>
-            </TouchableOpacity>
+            <View style={{flexDirection: 'row', gap: 5, alignItems: 'center'}}>
+              <TouchableOpacity
+                style={styles.buttonChange}
+                onPress={() => {
+                  if (!emailInput) return setEmailInput(auth.currentUser);
+                  setEmailInput(false);
+                }}
+              >
+                <Text style={styles.buttonChangeText}>Mudar e-mail</Text>
+              </TouchableOpacity>
+              <MaterialIcons name="verified" size={24} color="white" />
+            </View>
           ) : (
             <View style={styles.viewVerificar}>
               <Text style={styles.verificarText}>Email não verificado</Text>
@@ -379,7 +365,6 @@ const Conta = () => {
                     title={timerDelete ? "DELETAR" : "DELETAR (aguarde 5 seg.)"}
                     onPress={() => {
                       deletarUser();
-                      setModalDeleteVisible(!modalDeleteVisible);
                     }}
                     color="red"
                     disabled={!timerDelete}

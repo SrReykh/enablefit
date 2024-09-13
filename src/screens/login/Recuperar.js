@@ -15,10 +15,12 @@ import AntDesign from "@expo/vector-icons/AntDesign";
 import { useFonts } from "expo-font";
 import { LinearGradient } from "expo-linear-gradient";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
-import { useState } from "react";
+import Toast from "react-native-root-toast";
+import { useState, useEffect } from "react";
+
 import { FIREBASE_AUTH } from "../../../firebaseConfig";
 import { sendPasswordResetEmail } from "firebase/auth";
-import Toast from "react-native-root-toast";
+import { handleFirebaseAuthError } from "../../assets/handleFirebaseAuthError"
 
 const windowWidth = Dimensions.get("window").width;
 const windowHeight = Dimensions.get("window").height;
@@ -26,11 +28,19 @@ const windowHeight = Dimensions.get("window").height;
 const Recuperar = ({ navigation }) => {
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState("");
+  const [timeRequestEmail, setTimeRequestEmail] = useState(false)
   const [loaded] = useFonts({
     "shadows-into-light": require("../../../assets/fonts/ShadowsIntoLight-Regular.ttf"),
     Urbanist: require("../../../assets/fonts/Urbanist-VariableFont_wght.ttf"),
   });
 
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setTimeRequestEmail(false)
+    }, 30000)
+    return () => clearTimeout(timer);
+  }, [timeRequestEmail])
+  
   const auth = FIREBASE_AUTH;
 
   if (!loaded) {
@@ -57,15 +67,10 @@ const Recuperar = ({ navigation }) => {
       Toast.show(
         "Se o email existir, foi enviado uma redefinição de senha via email",
       );
-    } catch (e) {
-      if (e.code == "auth/invalid-email") return Toast.show("Email inválido");
-      if (e.code == "auth/user-not-found")
-        return Toast.show("Email não cadastrado");
-      if (e.code == "auth/invalid-credential")
-        return Toast.show("Credenciais inválidas");
-      Toast.show("Deu algo errado!" + e);
-    } finally {
+      setTimeRequestEmail(true);
       setLoading(false);
+    } catch (e) {
+      Toast.show(handleFirebaseAuthError(e))
     }
   }
 
@@ -101,10 +106,12 @@ const Recuperar = ({ navigation }) => {
           style={({ pressed }) => [
             styles.loginBtn,
             { opacity: pressed ? 0.5 : 1.0 },
+            { backgroundColor: timeRequestEmail ? 'gray' : "#0000cd" }
           ]}
           onPress={() => {
             sendRecoverEmail();
           }}
+          disabled={timeRequestEmail ? true : false}
         >
           <Text style={styles.loginBtnText}>Mandar e-mail de recuperação</Text>
         </Pressable>
@@ -172,7 +179,6 @@ const styles = StyleSheet.create({
     gap: 8,
     borderRadius: 15,
     padding: 10,
-    backgroundColor: "#0000cd",
   },
   loginBtnText: {
     fontSize: 20,
