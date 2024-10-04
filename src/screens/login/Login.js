@@ -19,7 +19,7 @@ import Toast from "react-native-root-toast";
 
 import { FIREBASE_AUTH } from "../../../firebaseConfig";
 import { signInWithEmailAndPassword } from "firebase/auth";
-import { handleFirebaseAuthError } from "../../assets/handleFirebaseAuthError"
+import { handleFirebaseAuthError } from "../../assets/handleFirebaseAuthError";
 
 const windowWidth = Dimensions.get("window").width;
 const windowHeight = Dimensions.get("window").height;
@@ -55,12 +55,12 @@ const LoginPage = ({ navigation }) => {
     setLoading(true);
     if (email.length == "" || password.length == "")
       return Toast.show("Preencha os campos!");
-    
+
     try {
       await signInWithEmailAndPassword(auth, email, password);
       Toast.show("Logado com sucesso!");
     } catch (e) {
-      Toast.show(handleFirebaseAuthError(e))
+      Toast.show(handleFirebaseAuthError(e));
     } finally {
       setLoading(false);
     }

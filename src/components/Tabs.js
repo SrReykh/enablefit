@@ -22,7 +22,7 @@ const Tabs = () => {
         tabBarLabelStyle: styles.labelStyle,
         tabBarActiveTintColor: "pink",
         tabBarInactiveTintColor: "white",
-        presentation: 'transparentModal'
+        presentation: "transparentModal",
       })}
     >
       <Tab.Screen

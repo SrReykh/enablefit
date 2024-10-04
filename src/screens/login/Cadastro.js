@@ -19,7 +19,7 @@ import Toast from "react-native-root-toast";
 
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { FIREBASE_AUTH } from "../../../firebaseConfig";
-import { handleFirebaseAuthError } from "../../assets/handleFirebaseAuthError"
+import { handleFirebaseAuthError } from "../../assets/handleFirebaseAuthError";
 
 const windowWidth = Dimensions.get("window").width;
 
@@ -58,11 +58,15 @@ const LoginPage = ({ navigation }) => {
       return Toast.show("Senhas não se coincidem!");
 
     try {
-      const create = await createUserWithEmailAndPassword(auth, email, password);
+      const create = await createUserWithEmailAndPassword(
+        auth,
+        email,
+        password,
+      );
       Toast.show("Cadastrado com sucesso!");
       setLoading(false);
     } catch (e) {
-      Toast.show(handleFirebaseAuthError(e))
+      Toast.show(handleFirebaseAuthError(e));
     }
   }
 

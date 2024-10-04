@@ -20,7 +20,7 @@ import {
   EmailAuthCredential,
   EmailAuthProvider,
 } from "firebase/auth";
-import { handleFirebaseAuthError } from "../assets/handleFirebaseAuthError"
+import { handleFirebaseAuthError } from "../assets/handleFirebaseAuthError";
 import { useFonts } from "expo-font";
 import Toast from "react-native-root-toast";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
@@ -79,21 +79,23 @@ const Conta = () => {
   }
 
   async function mudarEmail() {
-    if (emailText == "" || emailPasswordRequest == "") return Toast.show("Preencha os campos!");
+    if (emailText == "" || emailPasswordRequest == "")
+      return Toast.show("Preencha os campos!");
     if (auth.currentUser.emailVerified == false) return verificarEmail();
-    if (emailText == auth.currentUser.email) return Toast.show("Você já está usando esse e-mail"); 
+    if (emailText == auth.currentUser.email)
+      return Toast.show("Você já está usando esse e-mail");
 
     try {
       const authSucess = await reAuth();
       if (!authSucess) return;
-      
+
       await auth.currentUser.reload();
       await updateEmail(auth.currentUser, emailText);
       Toast.show(
         "E-mail trocado, confira sua caixa de e-mail para verificar seu novo e-mail",
       );
       setEmailInput(false);
-      setEmailPasswordRequest("")
+      setEmailPasswordRequest("");
       setEmailText("");
     } catch (e) {
       Toast.show(handleFirebaseAuthError(e));
@@ -119,7 +121,7 @@ const Conta = () => {
     try {
       const authSucess = await reAuth();
       if (!authSucess) return;
-      
+
       await updatePassword(auth.currentUser, passwordText);
       Toast.show("Senha trocada com sucesso!");
       setPasswordInput(false);
@@ -127,15 +129,15 @@ const Conta = () => {
       setConfirmPasswordText("");
     } catch (e) {
       Toast.show(handleFirebaseAuthError(e));
-    } 
+    }
   }
 
   async function deletarUser() {
     if (emailPasswordRequest == "") return Toast.show("Preencha os campos!");
-    
+
     try {
       const authSucess = await reAuth();
-      if (!authSucess) return;      
+      if (!authSucess) return;
       await deleteUser(auth.currentUser);
       setModalDeleteVisible(!modalDeleteVisible);
       Toast.show("Conta deletada com sucesso.");
@@ -152,7 +154,7 @@ const Conta = () => {
       );
       await reauthenticateWithCredential(auth.currentUser, credential);
     } catch (e) {
-      Toast.show(handleFirebaseAuthError(e))
+      Toast.show(handleFirebaseAuthError(e));
       return false;
     }
     return true;
@@ -182,10 +184,14 @@ const Conta = () => {
           <Text style={styles.emailHeader}>E-mail</Text>
           <Hr />
           <View style={{ flexDirection: "column-reverse", gap: 5 }}>
-            <Text style={styles.currentUserText}>reynanandrade10@gmail.com</Text>
+            <Text style={styles.currentUserText}>
+              reynanandrade10@gmail.com
+            </Text>
           </View>
           {verified ? (
-            <View style={{flexDirection: 'row', gap: 5, alignItems: 'center'}}>
+            <View
+              style={{ flexDirection: "row", gap: 5, alignItems: "center" }}
+            >
               <TouchableOpacity
                 style={styles.buttonChange}
                 onPress={() => {

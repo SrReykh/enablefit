@@ -2,7 +2,7 @@ import { View, StyleSheet, Dimensions } from "react-native";
 
 const windowWidth = Dimensions.get("window").width;
 
-const Hr = ( ) => {
+const Hr = () => {
   return (
     <View
       style={{

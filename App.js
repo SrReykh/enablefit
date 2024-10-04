@@ -11,16 +11,15 @@ import { FIREBASE_APP, FIREBASE_AUTH } from "./firebaseConfig";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { NavigationContainer } from "@react-navigation/native";
 import { RootSiblingParent } from "react-native-root-siblings";
-import { Linking, Platform } from 'react-native';
-import * as React from 'react';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Linking, Platform } from "react-native";
+import * as React from "react";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const Stack = createNativeStackNavigator();
 
 export default function App() {
   const [user, setUser] = useState(null);
   const [initializing, setInitializing] = useState(true);
- 
 
   // Verifica quando o usuário logou ou deslogou.
   useEffect(() => {
@@ -28,14 +27,14 @@ export default function App() {
       // console.log(usr)
       // Muda o state pra direcionar o usuário pra página pra login ou se ele logou.
       if (usr) {
-        setUser(usr)
+        setUser(usr);
       } else {
-        setUser(null)
+        setUser(null);
       }
       setInitializing(false);
     });
   }, [initializing]);
-   
+
   if (initializing) return <ActivityIndicator size="large" color="#0000ff" />;
   return (
     <>
@@ -48,10 +47,7 @@ export default function App() {
             }}
           >
             {user ? (
-              <Stack.Screen 
-                name={"Tabs"} 
-                component={Tabs}
-              />
+              <Stack.Screen name={"Tabs"} component={Tabs} />
             ) : (
               <>
                 <Stack.Screen name={"Login"} component={Login} />

@@ -20,7 +20,7 @@ import { useState, useEffect } from "react";
 
 import { FIREBASE_AUTH } from "../../../firebaseConfig";
 import { sendPasswordResetEmail } from "firebase/auth";
-import { handleFirebaseAuthError } from "../../assets/handleFirebaseAuthError"
+import { handleFirebaseAuthError } from "../../assets/handleFirebaseAuthError";
 
 const windowWidth = Dimensions.get("window").width;
 const windowHeight = Dimensions.get("window").height;
@@ -28,7 +28,7 @@ const windowHeight = Dimensions.get("window").height;
 const Recuperar = ({ navigation }) => {
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState("");
-  const [timeRequestEmail, setTimeRequestEmail] = useState(false)
+  const [timeRequestEmail, setTimeRequestEmail] = useState(false);
   const [loaded] = useFonts({
     "shadows-into-light": require("../../../assets/fonts/ShadowsIntoLight-Regular.ttf"),
     Urbanist: require("../../../assets/fonts/Urbanist-VariableFont_wght.ttf"),
@@ -36,11 +36,11 @@ const Recuperar = ({ navigation }) => {
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      setTimeRequestEmail(false)
-    }, 30000)
+      setTimeRequestEmail(false);
+    }, 30000);
     return () => clearTimeout(timer);
-  }, [timeRequestEmail])
-  
+  }, [timeRequestEmail]);
+
   const auth = FIREBASE_AUTH;
 
   if (!loaded) {
@@ -70,7 +70,7 @@ const Recuperar = ({ navigation }) => {
       setTimeRequestEmail(true);
       setLoading(false);
     } catch (e) {
-      Toast.show(handleFirebaseAuthError(e))
+      Toast.show(handleFirebaseAuthError(e));
     }
   }
 
@@ -106,7 +106,7 @@ const Recuperar = ({ navigation }) => {
           style={({ pressed }) => [
             styles.loginBtn,
             { opacity: pressed ? 0.5 : 1.0 },
-            { backgroundColor: timeRequestEmail ? 'gray' : "#0000cd" }
+            { backgroundColor: timeRequestEmail ? "gray" : "#0000cd" },
           ]}
           onPress={() => {
             sendRecoverEmail();
