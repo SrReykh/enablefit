@@ -58,7 +58,7 @@ const LoginPage = ({ navigation }) => {
       return Toast.show("Senhas não se coincidem!");
 
     try {
-      await createUserWithEmailAndPassword(auth, email, password);
+      const create = await createUserWithEmailAndPassword(auth, email, password);
       Toast.show("Cadastrado com sucesso!");
       setLoading(false);
     } catch (e) {

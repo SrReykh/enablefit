@@ -15,12 +15,14 @@ const Tab = createBottomTabNavigator();
 const Tabs = () => {
   return (
     <Tab.Navigator
+      initialRouteName="Meu Treino"
       screenOptions={() => ({
         headerShown: false,
         tabBarStyle: styles.tabColor,
         tabBarLabelStyle: styles.labelStyle,
         tabBarActiveTintColor: "pink",
         tabBarInactiveTintColor: "white",
+        presentation: 'transparentModal'
       })}
     >
       <Tab.Screen
@@ -37,7 +39,7 @@ const Tabs = () => {
         }}
       />
       <Tab.Screen
-        name="Meu treino"
+        name="Meu Treino"
         component={Treino}
         options={{
           tabBarIcon: () => (
