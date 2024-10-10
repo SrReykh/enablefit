@@ -15,7 +15,7 @@ import AntDesign from "@expo/vector-icons/AntDesign";
 import { useFonts } from "expo-font";
 import { LinearGradient } from "expo-linear-gradient";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
-import Toast from "react-native-root-toast";
+import Toast from 'react-native-toast-message';
 import { useState, useEffect } from "react";
 
 import { FIREBASE_AUTH } from "../../../firebaseConfig";
@@ -60,17 +60,25 @@ const Recuperar = ({ navigation }) => {
 
   async function sendRecoverEmail() {
     setLoading(true);
-    if (email.length == "") return Toast.show("Preencha os campos!");
+    if (email.length == "") 
+      return Toast.show({ 
+        type: "info",
+        text1: "Preencha os campos!"
+      });
 
     try {
       const response = await sendPasswordResetEmail(auth, email);
-      Toast.show(
-        "Se o email existir, foi enviado uma redefinição de senha via email",
-      );
+      Toast.show({
+        type: "success",
+        text1: "Se o email existir, foi enviado uma redefinição de senha via email",
+      });
       setTimeRequestEmail(true);
       setLoading(false);
     } catch (e) {
-      Toast.show(handleFirebaseAuthError(e));
+      Toast.show({
+        type: "error",
+        text1: handleFirebaseAuthError(e)
+      });
     }
   }
 

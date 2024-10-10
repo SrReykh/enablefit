@@ -12,7 +12,7 @@ import {
 import { React, useEffect, useState } from "react";
 import DropDownPicker from "react-native-dropdown-picker";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
-import Toast from "react-native-root-toast";
+import Toast from 'react-native-toast-message';
 import Hr from "../components/Hr";
 import {
   doc,
@@ -81,15 +81,25 @@ const Treino = () => {
 
   async function setDeficiencia(value) {
     const actualDefs = await getDeficiencia();
-    if (value == null) return Toast.show("Selecione alguma deficiência!");
+    if (value == null) 
+      return Toast.show({
+        type: "info",
+        text1: "Selecione alguma deficiência!"
+      });
     if (actualDefs.includes(value))
-      return Toast.show("Deficiência já adicionada!");
+      return Toast.show({
+        type: "info",
+        text1: "Deficiência já adicionada!"
+      });
 
     try {
       await updateDoc(doc(db, "users", userEmail), {
         deficiencia: arrayUnion(value),
       });
-      Toast.show("Deficiência adicionada com sucesso!");
+      Toast.show({
+        type: "success",
+        text1: "Deficiência adicionada com sucesso!"
+      })
       getDeficiencia();
     } catch (e) {
       if (e.code == "not-found") {
@@ -98,7 +108,10 @@ const Treino = () => {
             deficiencia: [value],
           };
       }
-      Toast.show(e.message);
+      Toast.show({
+        type: "error",
+        text1: e.message
+      });
     }
   }
 
@@ -113,7 +126,10 @@ const Treino = () => {
         return deficiencia;
       }
     } catch (e) {
-      Toast.show(e.message);
+      Toast.show({
+        type: "error",
+        text1: e.message
+      });
     }
   }
 
@@ -123,10 +139,16 @@ const Treino = () => {
       await updateDoc(doc(db, "users", userEmail), {
         deficiencia: arrayRemove(deficiencia),
       });
-      Toast.show(`${deficiencia} deletado(a) com sucesso`);
+      Toast.show({
+        type: "success",
+        text1:`${deficiencia} deletado(a) com sucesso`
+      });
       getDeficiencia();
     } catch (e) {
-      Toast.show(e.message);
+      Toast.show({
+        type: "error",
+        text1: e.message
+      });
     }
   }
 
@@ -303,7 +325,7 @@ const styles = StyleSheet.create({
   flatListDef: {
     height: 130,
     width: windowWidth - 30,
-    backgroundColor: "#151722",
+    backgroundColor: "#151723",
     paddingLeft: 15,
     borderRadius: 5,
   },

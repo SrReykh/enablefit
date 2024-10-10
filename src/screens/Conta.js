@@ -7,7 +7,10 @@ import {
   TextInput,
   TouchableOpacity,
   Modal,
+  Image,
+  ScrollView
 } from "react-native";
+import * as DocumentPicker from 'expo-document-picker';
 import { React, useEffect, useState } from "react";
 import { FIREBASE_AUTH } from "../../firebaseConfig";
 import {
@@ -19,14 +22,17 @@ import {
   reauthenticateWithCredential,
   EmailAuthCredential,
   EmailAuthProvider,
+  updateProfile,
 } from "firebase/auth";
 import { handleFirebaseAuthError } from "../assets/handleFirebaseAuthError";
+import { ref, getStorage, uploadBytes, getDownloadURL, uploadBytesResumable,  } from "firebase/storage";
 import { useFonts } from "expo-font";
-import Toast from "react-native-root-toast";
+import Toast from 'react-native-toast-message';
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import Hr from "../components/Hr";
 
 const Conta = () => {
+  const [imageFile, setImageFile] = useState(null)
   const [modalDeleteVisible, setModalDeleteVisible] = useState(false);
   const [modalLogOffVisible, setModalLogOffVisible] = useState(false);
   const [verified, setVerified] = useState(false);
@@ -80,10 +86,16 @@ const Conta = () => {
 
   async function mudarEmail() {
     if (emailText == "" || emailPasswordRequest == "")
-      return Toast.show("Preencha os campos!");
+      return Toast.show({
+        type: "info",
+        text1: "Preencha os campos!"
+      });
     if (auth.currentUser.emailVerified == false) return verificarEmail();
     if (emailText == auth.currentUser.email)
-      return Toast.show("Você já está usando esse e-mail");
+      return Toast.show({
+        type: "error",
+        text1: "Você já está usando esse e-mail!"
+      });
 
     try {
       const authSucess = await reAuth();
@@ -91,58 +103,90 @@ const Conta = () => {
 
       await auth.currentUser.reload();
       await updateEmail(auth.currentUser, emailText);
-      Toast.show(
-        "E-mail trocado, confira sua caixa de e-mail para verificar seu novo e-mail",
-      );
+      Toast.show({
+        type: 'success',
+        text1: "E-mail trocado, confira sua caixa de e-mail para verificar seu novo e-mail"
+      })
       setEmailInput(false);
       setEmailPasswordRequest("");
       setEmailText("");
     } catch (e) {
-      Toast.show(handleFirebaseAuthError(e));
+      Toast.show({
+        type: "error",
+        text1: handleFirebaseAuthError(e)
+      });
     }
   }
 
   async function verificarEmail() {
     sendEmailVerification(auth.currentUser)
       .then(() => {
-        Toast.show("Verifique sua caixa de e-mail");
+        Toast.show({
+          type: "success",
+          text1: "Verifique sua caixa de e-mail"
+        });
       })
       .catch((e) => {
-        Toast.show(handleFirebaseAuthError(e));
+        Toast.show({
+          type: "error",
+          text1: handleFirebaseAuthError(e)
+        });
       });
   }
 
   async function mudarSenha() {
     if (passwordText == "" || confirmPasswordText == "")
-      return Toast.show("Preencha os campos!");
+      return Toast.show({
+        type: "info",
+        text1: "Preencha os campos!"
+      });
     if (passwordText != confirmPasswordText)
-      return Toast.show("Senhas não se coincidem");
+      return Toast.show({
+        type: "info",
+        text1: "Senhas não se coincidem!"
+      });
 
     try {
       const authSucess = await reAuth();
       if (!authSucess) return;
 
       await updatePassword(auth.currentUser, passwordText);
-      Toast.show("Senha trocada com sucesso!");
+      Toast.show({
+        type: "success",
+        text1: "Senha trocada com sucesso!"
+      });
       setPasswordInput(false);
       setPasswordText("");
       setConfirmPasswordText("");
     } catch (e) {
-      Toast.show(handleFirebaseAuthError(e));
+      Toast.show({
+        type: "error",
+        text1: handleFirebaseAuthError(e)
+      });
     }
   }
 
   async function deletarUser() {
-    if (emailPasswordRequest == "") return Toast.show("Preencha os campos!");
+    if (emailPasswordRequest == "") 
+      return Toast.show({
+        type: "info",
+        text1: "Preencha os campos!"}
+      );
 
     try {
       const authSucess = await reAuth();
       if (!authSucess) return;
       await deleteUser(auth.currentUser);
       setModalDeleteVisible(!modalDeleteVisible);
-      Toast.show("Conta deletada com sucesso.");
+      Toast.show({ 
+        type: "success",
+        text1: "Conta deletada com sucesso."
+      });
     } catch (e) {
-      Toast.show(handleFirebaseAuthError(e));
+      Toast.show({ 
+        type: "error",
+        text1: handleFirebaseAuthError(e)
+      });
     }
   }
 
@@ -154,12 +198,56 @@ const Conta = () => {
       );
       await reauthenticateWithCredential(auth.currentUser, credential);
     } catch (e) {
-      Toast.show(handleFirebaseAuthError(e));
+      Toast.show({ 
+        type: "error",
+        text1: handleFirebaseAuthError(e)
+      });
       return false;
     }
     return true;
   }
+  
+  async function filePicker() {
+    try {
+      const result = await DocumentPicker.getDocumentAsync({
+        type: 'image/*',
+        copyToCacheDirectory: true,
+      });
+      
+      if (result.canceled === false) {
+        console.log(result)
+        const response = await fetch(result.assets[0].uri);
+        const blob = await response.blob();
 
+        const storage = getStorage()
+        const storageRef = ref(storage, `profile_picture/${result.assets[0].name}`);
+        const uploadTask = await uploadBytes(storageRef, blob)
+        const downloadUrl = await getDownloadURL(storageRef)
+        await updateProfile(auth.currentUser, {
+          photoURL: downloadUrl
+        })
+        console.log(auth.currentUser.photoURL)
+        
+        Toast.show({
+          type: "success",
+          text1: "Foto de perfil adicionada com sucesso!"
+        })
+        console.log(result)
+      } else {
+        Toast.show({
+          type: "error",
+          text1: "Ação cancelada"
+        })
+      }
+    } catch (e) {
+      Toast.show({
+        type: "error",
+        text1: e.message
+      });
+      console.error(e.message)
+    }
+  }
+  
   if (!loaded) {
     return (
       <View
@@ -176,16 +264,30 @@ const Conta = () => {
   }
 
   return (
-    <View style={styles.containerView}>
+    <ScrollView style={styles.containerView}>
       <View style={styles.viewMyProfile}>
-        <Text style={styles.headerProfileText}>Meu perfil</Text>
+        <View style={styles.headerStyle}>
+          <Text style={styles.headerProfileText}>Meu perfil</Text>
+        </View>
+        <TouchableOpacity
+          onPress={() => filePicker()}
+        >
+          <Image
+          style={styles.userImage}
+          source={
+            auth.currentUser.photoURL 
+              ? { uri: auth.currentUser.photoURL }
+              : require('../../assets/user.png')
+          }
+          />
+        </TouchableOpacity>
         <Hr />
         <View style={styles.updateEmail}>
           <Text style={styles.emailHeader}>E-mail</Text>
           <Hr />
           <View style={{ flexDirection: "column-reverse", gap: 5 }}>
             <Text style={styles.currentUserText}>
-              reynanandrade10@gmail.com
+            {auth.currentUser.email}
             </Text>
           </View>
           {verified ? (
@@ -326,10 +428,16 @@ const Conta = () => {
                       auth
                         .signOut()
                         .then(() => {
-                          Toast.show("Deslogado com sucesso");
+                          Toast.show({ 
+                            type: "success",
+                            text1: "Deslogado com sucesso"
+                          });
                         })
                         .catch((e) => {
-                          Toast.show("Ocorreu um erro!");
+                          Toast.show({ 
+                            type: "error",
+                            text1: "Ocorreu um erro!"
+                          });
                         });
                     }}
                     color="blue"
@@ -389,7 +497,7 @@ const Conta = () => {
           </View>
         </View>
       </View>
-    </View>
+  </ScrollView>
   );
 };
 
@@ -541,13 +649,24 @@ const styles = StyleSheet.create({
   modalLogOffText: {
     fontSize: 22,
     fontFamily: "Urbanist",
+    color: 'white'
   },
   modalLogOffContainer: {
-    backgroundColor: "white",
+    backgroundColor: "#282828",
     padding: 40,
     borderRadius: 15,
     gap: 10,
   },
+  userImage: {
+    width: 160,
+    height: 160,
+    borderRadius: 100,
+  },
+  headerStyle: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between'
+  }
 });
 
 export default Conta;

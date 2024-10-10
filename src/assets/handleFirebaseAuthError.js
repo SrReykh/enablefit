@@ -1,22 +1,22 @@
 export function handleFirebaseAuthError(error) {
   switch (error.code) {
     case "auth/invalid-email":
-      return "O endereço de e-mail inserido está em um formato inválido.";
+      return "O e-mail está em um formato inválido.";
 
     case "auth/user-disabled":
-      return "A conta do usuário foi desativada pelo administrador.";
+      return "A conta do usuário foi desativada pelo sistema.";
 
     case "auth/user-not-found":
-      return "Não há registro de usuário correspondente ao e-mail fornecido.";
+      return "Não há registro de usuário ao e-mail fornecido.";
 
     case "auth/wrong-password":
-      return "A senha fornecida está incorreta.";
+      return "A senha está incorreta.";
 
     case "auth/email-already-in-use":
-      return "O endereço de e-mail já está em uso por outra conta.";
+      return "O endereço de e-mail já em uso.";
 
     case "auth/operation-not-allowed":
-      return "O tipo de conta especificado está desabilitado no Firebase Authentication.";
+      return "Operação não permitida.";
 
     case "auth/too-many-requests":
       return "Muitas requisições... Aguarde.";
@@ -44,6 +44,9 @@ export function handleFirebaseAuthError(error) {
 
     case "auth/expired-action-code":
       return "O código de ação de verificação de e-mail expirou.";
+      
+    case "auth/network-request-failed":
+      return "Falha na internet."
 
     default:
       return "Ocorreu um erro desconhecido: " + error.message;

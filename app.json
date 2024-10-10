@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "Enable Fit",
+    "name": "enablefit",
     "slug": "enablefit",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -31,6 +31,12 @@
           "fonts": [
             "node_modules/@expo-google-fonts/shadows-into-light/ShadowsIntoLight_400Regular.ttf"
           ]
+        }
+      ],
+      [
+      "expo-document-picker",
+        {
+          "iCloudContainerEnvironment": "Production"
         }
       ]
     ],
