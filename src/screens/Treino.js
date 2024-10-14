@@ -12,7 +12,7 @@ import {
 import { React, useEffect, useState } from "react";
 import DropDownPicker from "react-native-dropdown-picker";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
-import Toast from 'react-native-toast-message';
+import Toast from "react-native-toast-message";
 import Hr from "../components/Hr";
 import {
   doc,
@@ -25,6 +25,10 @@ import {
 } from "firebase/firestore";
 import { db } from "../../firebaseConfig";
 import { FIREBASE_AUTH } from "../../firebaseConfig";
+import { createStackNavigator } from "@react-navigation/stack";
+import WelcomeScreen from "./WelcomeScreen";
+import WelcomeScreenDataNasc from "./WelcomeScreenDataNasc"
+import WelcomeScreenLastInfo from "./WelcomeScreenLastInfo";
 
 const auth = FIREBASE_AUTH;
 
@@ -39,7 +43,21 @@ DropDownPicker.setLanguage("BR");
 const windowWidth = Dimensions.get("window").width;
 const windowHeight = Dimensions.get("window").height;
 
-const Treino = () => {
+const TreinoStack = createStackNavigator();
+
+// Cria outra Stack e permite múltiplas páginas nesse componente do Bottom Navigator
+export default Treino = () => {
+  return (
+    <TreinoStack.Navigator screenOptions={{ headerShown: false }}>
+      <TreinoStack.Screen name="TreinoScreen" component={TreinoScreen} />
+      <TreinoStack.Screen name="WelcomeScreen" component={WelcomeScreen} />
+      <TreinoStack.Screen name="WelcomeScreenDataNasc" component={WelcomeScreenDataNasc} />
+      <TreinoStack.Screen name="WelcomeScreenLastInfo" component={WelcomeScreenLastInfo} />
+    </TreinoStack.Navigator>
+  );
+};
+
+const TreinoScreen = ({ navigation }) => {
   const [modalAddDefVisible, setModalAddDefVisible] = useState(false);
   const [defs, setDefs] = useState([]);
   const [open, setOpen] = useState(false);
@@ -81,15 +99,15 @@ const Treino = () => {
 
   async function setDeficiencia(value) {
     const actualDefs = await getDeficiencia();
-    if (value == null) 
+    if (value == null)
       return Toast.show({
         type: "info",
-        text1: "Selecione alguma deficiência!"
+        text1: "Selecione alguma deficiência!",
       });
     if (actualDefs.includes(value))
       return Toast.show({
         type: "info",
-        text1: "Deficiência já adicionada!"
+        text1: "Deficiência já adicionada!",
       });
 
     try {
@@ -98,8 +116,8 @@ const Treino = () => {
       });
       Toast.show({
         type: "success",
-        text1: "Deficiência adicionada com sucesso!"
-      })
+        text1: "Deficiência adicionada com sucesso!",
+      });
       getDeficiencia();
     } catch (e) {
       if (e.code == "not-found") {
@@ -110,7 +128,7 @@ const Treino = () => {
       }
       Toast.show({
         type: "error",
-        text1: e.message
+        text1: e.message,
       });
     }
   }
@@ -128,7 +146,7 @@ const Treino = () => {
     } catch (e) {
       Toast.show({
         type: "error",
-        text1: e.message
+        text1: e.message,
       });
     }
   }
@@ -141,18 +159,24 @@ const Treino = () => {
       });
       Toast.show({
         type: "success",
-        text1:`${deficiencia} deletado(a) com sucesso`
+        text1: `${deficiencia} deletado(a) com sucesso`,
       });
       getDeficiencia();
     } catch (e) {
       Toast.show({
         type: "error",
-        text1: e.message
+        text1: e.message,
       });
     }
   }
 
+  // Verifica se a conta foi criada recentemente e joga o usuário pra completar a conta dele.
   useEffect(() => {
+    const accountCreatedAt = Date.parse(auth.currentUser.metadata.creationTime);
+    const currentTime = Date.now();
+    if (currentTime <= accountCreatedAt + 10000) 
+      navigation.navigate('WelcomeScreen')
+    
     getDeficiencia();
   }, []);
 
@@ -190,6 +214,10 @@ const Treino = () => {
             )}
           />
         </View>
+        <Button
+          title={"test"}
+          onPress={() => navigation.navigate("WelcomeScreen")}
+        />
       </View>
       <Modal
         animationType="slide"
@@ -336,5 +364,3 @@ const styles = StyleSheet.create({
     padding: 3,
   },
 });
-
-export default Treino;

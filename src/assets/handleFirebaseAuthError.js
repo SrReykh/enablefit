@@ -44,9 +44,9 @@ export function handleFirebaseAuthError(error) {
 
     case "auth/expired-action-code":
       return "O código de ação de verificação de e-mail expirou.";
-      
+
     case "auth/network-request-failed":
-      return "Falha na internet."
+      return "Falha na internet.";
 
     default:
       return "Ocorreu um erro desconhecido: " + error.message;

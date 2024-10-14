@@ -1,20 +1,21 @@
 import { ActivityIndicator } from "react-native";
-import Tabs from "./src/components/Tabs";
+import BottomBar from "./src/components/BottomBar";
 import Login from "./src/screens/login/Login";
 import Cadastro from "./src/screens/login/Cadastro";
 import Recuperar from "./src/screens/login/Recuperar";
-import Treino from "./src/screens/Treino";
+import WelcomeScreen from "./src/screens/WelcomeScreen";
 import { useEffect, useState } from "react";
 import { onAuthStateChanged } from "firebase/auth";
-import { FIREBASE_APP, FIREBASE_AUTH } from "./firebaseConfig";
-import Toast, { BaseToast, ErrorToast, InfoToast } from 'react-native-toast-message';
+import { FIREBASE_AUTH } from "./firebaseConfig";
+import Toast, {
+  BaseToast,
+  ErrorToast,
+  InfoToast,
+} from "react-native-toast-message";
 
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { NavigationContainer } from "@react-navigation/native";
-import { RootSiblingParent } from "react-native-root-siblings";
-import { Linking, Platform } from "react-native";
 import * as React from "react";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const Stack = createNativeStackNavigator();
 
@@ -22,51 +23,51 @@ const toastConfig = {
   success: (props) => (
     <BaseToast
       {...props}
-      style={{ borderLeftColor: 'green' }}
-      contentContainerStyle={{ 
+      style={{ borderLeftColor: "green" }}
+      contentContainerStyle={{
         backgroundColor: "#151723",
-        paddingHorizontal: 15, 
+        paddingHorizontal: 15,
         borderBottomRightRadius: 5,
         borderTopRightRadius: 5,
       }}
       text1Style={{
         fontSize: 15,
-        fontWeight: '400',
-        color: "white"
+        fontWeight: "400",
+        color: "white",
       }}
     />
   ),
   info: (props) => (
     <InfoToast
-    {...props}
-    style={{ borderLeftColor: 'blue' }}
-    contentContainerStyle={{ 
-      backgroundColor: "#151723",
-      paddingHorizontal: 15, 
-      borderBottomRightRadius: 5,
-      borderTopRightRadius: 5,
-    }}
-    text1Style={{
-      fontSize: 15,
-      fontWeight: '400',
-      color: "white"
-    }}
-    />
-  ),
-  error: (props) => (
-    <ErrorToast
       {...props}
-      style={{ borderLeftColor: 'red' }}
-      contentContainerStyle={{ 
+      style={{ borderLeftColor: "blue" }}
+      contentContainerStyle={{
         backgroundColor: "#151723",
-        paddingHorizontal: 15, 
+        paddingHorizontal: 15,
         borderBottomRightRadius: 5,
         borderTopRightRadius: 5,
       }}
       text1Style={{
         fontSize: 15,
-        fontWeight: '400',
-        color: "white"
+        fontWeight: "400",
+        color: "white",
+      }}
+    />
+  ),
+  error: (props) => (
+    <ErrorToast
+      {...props}
+      style={{ borderLeftColor: "red" }}
+      contentContainerStyle={{
+        backgroundColor: "#151723",
+        paddingHorizontal: 15,
+        borderBottomRightRadius: 5,
+        borderTopRightRadius: 5,
+      }}
+      text1Style={{
+        fontSize: 15,
+        fontWeight: "400",
+        color: "white",
       }}
     />
   ),
@@ -101,7 +102,9 @@ export default function App() {
           }}
         >
           {user ? (
-            <Stack.Screen name={"Tabs"} component={Tabs} />
+            <>
+              <Stack.Screen name={"BottomBar"} component={BottomBar} />
+            </>
           ) : (
             <>
               <Stack.Screen name={"Login"} component={Login} />
@@ -113,11 +116,10 @@ export default function App() {
       </NavigationContainer>
       <Toast
         position="bottom"
-        bottomOffset={60}
+        bottomOffset={55}
         keyboardOffset={10}
         config={toastConfig}
       />
     </>
   );
 }
-

@@ -8,9 +8,9 @@ import {
   TouchableOpacity,
   Modal,
   Image,
-  ScrollView
+  ScrollView,
 } from "react-native";
-import * as DocumentPicker from 'expo-document-picker';
+import * as DocumentPicker from "expo-document-picker";
 import { React, useEffect, useState } from "react";
 import { FIREBASE_AUTH } from "../../firebaseConfig";
 import {
@@ -25,14 +25,22 @@ import {
   updateProfile,
 } from "firebase/auth";
 import { handleFirebaseAuthError } from "../assets/handleFirebaseAuthError";
-import { ref, getStorage, uploadBytes, getDownloadURL, uploadBytesResumable,  } from "firebase/storage";
+import {
+  ref,
+  getStorage,
+  uploadBytes,
+  getDownloadURL,
+  uploadBytesResumable,
+  deleteObject,
+  listAll,
+} from "firebase/storage";
 import { useFonts } from "expo-font";
-import Toast from 'react-native-toast-message';
+import Toast from "react-native-toast-message";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import Hr from "../components/Hr";
 
 const Conta = () => {
-  const [imageFile, setImageFile] = useState(null)
+  const [imageFile, setImageFile] = useState(null);
   const [modalDeleteVisible, setModalDeleteVisible] = useState(false);
   const [modalLogOffVisible, setModalLogOffVisible] = useState(false);
   const [verified, setVerified] = useState(false);
@@ -88,13 +96,13 @@ const Conta = () => {
     if (emailText == "" || emailPasswordRequest == "")
       return Toast.show({
         type: "info",
-        text1: "Preencha os campos!"
+        text1: "Preencha os campos!",
       });
     if (auth.currentUser.emailVerified == false) return verificarEmail();
     if (emailText == auth.currentUser.email)
       return Toast.show({
         type: "error",
-        text1: "Você já está usando esse e-mail!"
+        text1: "Você já está usando esse e-mail!",
       });
 
     try {
@@ -104,16 +112,17 @@ const Conta = () => {
       await auth.currentUser.reload();
       await updateEmail(auth.currentUser, emailText);
       Toast.show({
-        type: 'success',
-        text1: "E-mail trocado, confira sua caixa de e-mail para verificar seu novo e-mail"
-      })
+        type: "success",
+        text1:
+          "E-mail trocado, confira sua caixa de e-mail para verificar seu novo e-mail",
+      });
       setEmailInput(false);
       setEmailPasswordRequest("");
       setEmailText("");
     } catch (e) {
       Toast.show({
         type: "error",
-        text1: handleFirebaseAuthError(e)
+        text1: handleFirebaseAuthError(e),
       });
     }
   }
@@ -123,13 +132,13 @@ const Conta = () => {
       .then(() => {
         Toast.show({
           type: "success",
-          text1: "Verifique sua caixa de e-mail"
+          text1: "Verifique sua caixa de e-mail",
         });
       })
       .catch((e) => {
         Toast.show({
           type: "error",
-          text1: handleFirebaseAuthError(e)
+          text1: handleFirebaseAuthError(e),
         });
       });
   }
@@ -138,22 +147,23 @@ const Conta = () => {
     if (passwordText == "" || confirmPasswordText == "")
       return Toast.show({
         type: "info",
-        text1: "Preencha os campos!"
+        text1: "Preencha os campos!",
       });
     if (passwordText != confirmPasswordText)
       return Toast.show({
         type: "info",
-        text1: "Senhas não se coincidem!"
+        text1: "Senhas não se coincidem!",
       });
 
     try {
       const authSucess = await reAuth();
       if (!authSucess) return;
 
+      // Atualiza a senha do usuário
       await updatePassword(auth.currentUser, passwordText);
       Toast.show({
         type: "success",
-        text1: "Senha trocada com sucesso!"
+        text1: "Senha trocada com sucesso!",
       });
       setPasswordInput(false);
       setPasswordText("");
@@ -161,32 +171,40 @@ const Conta = () => {
     } catch (e) {
       Toast.show({
         type: "error",
-        text1: handleFirebaseAuthError(e)
+        text1: handleFirebaseAuthError(e),
       });
     }
   }
 
   async function deletarUser() {
-    if (emailPasswordRequest == "") 
+    if (emailPasswordRequest == "")
       return Toast.show({
         type: "info",
-        text1: "Preencha os campos!"}
-      );
+        text1: "Preencha os campos!",
+      });
 
     try {
       const authSucess = await reAuth();
       if (!authSucess) return;
+
+      // Verifica se há alguma foto no Storage e quando o usuário for deletado, a foto é apagada
+      const storage = getStorage();
+      const imageRef = ref(storage, `profile_picture/${auth.currentUser.uid}`);
+      if (auth.currentUser.photoURL) await deleteObject(imageRef);
+      
+      // Deleta o usuário
       await deleteUser(auth.currentUser);
       setModalDeleteVisible(!modalDeleteVisible);
-      Toast.show({ 
+      Toast.show({
         type: "success",
-        text1: "Conta deletada com sucesso."
+        text1: "Conta deletada com sucesso.",
       });
     } catch (e) {
-      Toast.show({ 
+      Toast.show({
         type: "error",
-        text1: handleFirebaseAuthError(e)
+        text1: handleFirebaseAuthError(e),
       });
+      console.log(e.message);
     }
   }
 
@@ -198,56 +216,67 @@ const Conta = () => {
       );
       await reauthenticateWithCredential(auth.currentUser, credential);
     } catch (e) {
-      Toast.show({ 
+      Toast.show({
         type: "error",
-        text1: handleFirebaseAuthError(e)
+        text1: handleFirebaseAuthError(e),
       });
       return false;
     }
     return true;
   }
-  
-  async function filePicker() {
+
+  async function askForPicture() {
     try {
       const result = await DocumentPicker.getDocumentAsync({
-        type: 'image/*',
+        type: "image/*",
         copyToCacheDirectory: true,
       });
-      
-      if (result.canceled === false) {
-        console.log(result)
-        const response = await fetch(result.assets[0].uri);
-        const blob = await response.blob();
 
-        const storage = getStorage()
-        const storageRef = ref(storage, `profile_picture/${result.assets[0].name}`);
-        const uploadTask = await uploadBytes(storageRef, blob)
-        const downloadUrl = await getDownloadURL(storageRef)
-        await updateProfile(auth.currentUser, {
-          photoURL: downloadUrl
-        })
-        console.log(auth.currentUser.photoURL)
-        
-        Toast.show({
-          type: "success",
-          text1: "Foto de perfil adicionada com sucesso!"
-        })
-        console.log(result)
-      } else {
-        Toast.show({
-          type: "error",
-          text1: "Ação cancelada"
-        })
-      }
+      if (!result.canceled) return result;
     } catch (e) {
       Toast.show({
         type: "error",
-        text1: e.message
+        text1: e,
       });
-      console.error(e.message)
+      console.error(e);
     }
   }
-  
+
+  async function changeProfilePicture() {
+    try {
+      const result = await askForPicture();
+      const storage = getStorage();
+      if (!result) return;
+      const response = await fetch(result.assets[0].uri);
+      const blob = await response.blob();
+      const storageRef = ref(
+        storage,
+        `profile_picture/${auth.currentUser.uid}`,
+      );
+      const metadata = {
+        customMetadata: {
+          userId: auth.currentUser.uid,
+        },
+      };
+
+      const uploadTask = await uploadBytesResumable(storageRef, blob, metadata);
+      const downloadUrl = await getDownloadURL(storageRef);
+      await updateProfile(auth.currentUser, {
+        photoURL: downloadUrl,
+      });
+
+      Toast.show({
+        type: "success",
+        text1: "Foto de perfil adicionada com sucesso!",
+      });
+    } catch (e) {
+      Toast.show({
+        type: "error",
+        text1: e.message,
+      });
+    }
+  }
+
   if (!loaded) {
     return (
       <View
@@ -269,16 +298,14 @@ const Conta = () => {
         <View style={styles.headerStyle}>
           <Text style={styles.headerProfileText}>Meu perfil</Text>
         </View>
-        <TouchableOpacity
-          onPress={() => filePicker()}
-        >
+        <TouchableOpacity onPress={() => changeProfilePicture()}>
           <Image
-          style={styles.userImage}
-          source={
-            auth.currentUser.photoURL 
-              ? { uri: auth.currentUser.photoURL }
-              : require('../../assets/user.png')
-          }
+            style={styles.userImage}
+            source={
+              auth.currentUser.photoURL
+                ? { uri: auth.currentUser.photoURL }
+                : require("../../assets/user.png")
+            }
           />
         </TouchableOpacity>
         <Hr />
@@ -286,9 +313,7 @@ const Conta = () => {
           <Text style={styles.emailHeader}>E-mail</Text>
           <Hr />
           <View style={{ flexDirection: "column-reverse", gap: 5 }}>
-            <Text style={styles.currentUserText}>
-            {auth.currentUser.email}
-            </Text>
+            <Text style={styles.currentUserText}>{auth.currentUser.email}</Text>
           </View>
           {verified ? (
             <View
@@ -428,15 +453,15 @@ const Conta = () => {
                       auth
                         .signOut()
                         .then(() => {
-                          Toast.show({ 
+                          Toast.show({
                             type: "success",
-                            text1: "Deslogado com sucesso"
+                            text1: "Deslogado com sucesso",
                           });
                         })
                         .catch((e) => {
-                          Toast.show({ 
+                          Toast.show({
                             type: "error",
-                            text1: "Ocorreu um erro!"
+                            text1: "Ocorreu um erro!",
                           });
                         });
                     }}
@@ -497,7 +522,7 @@ const Conta = () => {
           </View>
         </View>
       </View>
-  </ScrollView>
+    </ScrollView>
   );
 };
 
@@ -649,7 +674,7 @@ const styles = StyleSheet.create({
   modalLogOffText: {
     fontSize: 22,
     fontFamily: "Urbanist",
-    color: 'white'
+    color: "white",
   },
   modalLogOffContainer: {
     backgroundColor: "#282828",
@@ -663,10 +688,10 @@ const styles = StyleSheet.create({
     borderRadius: 100,
   },
   headerStyle: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between'
-  }
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
 });
 
 export default Conta;

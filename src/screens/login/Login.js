@@ -15,8 +15,7 @@ import { useFonts } from "expo-font";
 import { LinearGradient } from "expo-linear-gradient";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { useState } from "react";
-import Toast from 'react-native-toast-message';
-
+import Toast from "react-native-toast-message";
 
 import { FIREBASE_AUTH } from "../../../firebaseConfig";
 import { signInWithEmailAndPassword } from "firebase/auth";
@@ -57,20 +56,20 @@ const LoginPage = ({ navigation }) => {
     if (email.length == "" || password.length == "")
       return Toast.show({
         type: "info",
-        text1: "Preencha os campos!"
+        text1: "Preencha os campos!",
       });
 
     try {
       await signInWithEmailAndPassword(auth, email, password);
       Toast.show({
         type: "success",
-        text1: "Logado com sucesso!"
+        text1: "Logado com sucesso!",
       });
     } catch (e) {
       Toast.show({
         type: "error",
-        text1: handleFirebaseAuthError(e)
-      })
+        text1: handleFirebaseAuthError(e),
+      });
     } finally {
       setLoading(false);
     }
