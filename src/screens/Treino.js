@@ -27,7 +27,7 @@ import { db } from "../../firebaseConfig";
 import { FIREBASE_AUTH } from "../../firebaseConfig";
 import { createStackNavigator } from "@react-navigation/stack";
 import WelcomeScreen from "./WelcomeScreen";
-import WelcomeScreenDataNasc from "./WelcomeScreenDataNasc"
+import WelcomeScreenDataNasc from "./WelcomeScreenDataNasc";
 import WelcomeScreenLastInfo from "./WelcomeScreenLastInfo";
 
 const auth = FIREBASE_AUTH;
@@ -45,19 +45,7 @@ const windowHeight = Dimensions.get("window").height;
 
 const TreinoStack = createStackNavigator();
 
-// Cria outra Stack e permite múltiplas páginas nesse componente do Bottom Navigator
-export default Treino = () => {
-  return (
-    <TreinoStack.Navigator screenOptions={{ headerShown: false }}>
-      <TreinoStack.Screen name="TreinoScreen" component={TreinoScreen} />
-      <TreinoStack.Screen name="WelcomeScreen" component={WelcomeScreen} />
-      <TreinoStack.Screen name="WelcomeScreenDataNasc" component={WelcomeScreenDataNasc} />
-      <TreinoStack.Screen name="WelcomeScreenLastInfo" component={WelcomeScreenLastInfo} />
-    </TreinoStack.Navigator>
-  );
-};
-
-const TreinoScreen = ({ navigation }) => {
+export default Treino = ({ navigation }) => {
   const [modalAddDefVisible, setModalAddDefVisible] = useState(false);
   const [defs, setDefs] = useState([]);
   const [open, setOpen] = useState(false);
@@ -95,8 +83,6 @@ const TreinoScreen = ({ navigation }) => {
     { label: "Doenças Reumáticas", value: "Doenças Reumáticas" },
   ]);
 
-  const userEmail = auth.currentUser.email;
-
   async function setDeficiencia(value) {
     const actualDefs = await getDeficiencia();
     if (value == null)
@@ -111,7 +97,7 @@ const TreinoScreen = ({ navigation }) => {
       });
 
     try {
-      await updateDoc(doc(db, "users", userEmail), {
+      await updateDoc(doc(db, "users", auth.currentUser.email), {
         deficiencia: arrayUnion(value),
       });
       Toast.show({
@@ -121,7 +107,7 @@ const TreinoScreen = ({ navigation }) => {
       getDeficiencia();
     } catch (e) {
       if (e.code == "not-found") {
-        await setDoc(doc(db), "users", userEmail),
+        await setDoc(doc(db), "users", auth.currentUser.email),
           {
             deficiencia: [value],
           };
@@ -135,7 +121,7 @@ const TreinoScreen = ({ navigation }) => {
 
   async function getDeficiencia() {
     try {
-      const docRef = doc(db, "users", userEmail);
+      const docRef = doc(db, "users", auth.currentUser.email);
       const docSnap = await getDoc(docRef);
 
       if (docSnap.exists()) {
@@ -154,7 +140,7 @@ const TreinoScreen = ({ navigation }) => {
   async function deletarDef(def) {
     let deficiencia = def.item;
     try {
-      await updateDoc(doc(db, "users", userEmail), {
+      await updateDoc(doc(db, "users", auth.currentUser.email), {
         deficiencia: arrayRemove(deficiencia),
       });
       Toast.show({
@@ -170,13 +156,7 @@ const TreinoScreen = ({ navigation }) => {
     }
   }
 
-  // Verifica se a conta foi criada recentemente e joga o usuário pra completar a conta dele.
   useEffect(() => {
-    const accountCreatedAt = Date.parse(auth.currentUser.metadata.creationTime);
-    const currentTime = Date.now();
-    if (currentTime <= accountCreatedAt + 10000) 
-      navigation.navigate('WelcomeScreen')
-    
     getDeficiencia();
   }, []);
 
@@ -214,10 +194,6 @@ const TreinoScreen = ({ navigation }) => {
             )}
           />
         </View>
-        <Button
-          title={"test"}
-          onPress={() => navigation.navigate("WelcomeScreen")}
-        />
       </View>
       <Modal
         animationType="slide"

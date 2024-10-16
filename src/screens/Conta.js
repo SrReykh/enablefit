@@ -191,7 +191,7 @@ const Conta = () => {
       const storage = getStorage();
       const imageRef = ref(storage, `profile_picture/${auth.currentUser.uid}`);
       if (auth.currentUser.photoURL) await deleteObject(imageRef);
-      
+
       // Deleta o usuário
       await deleteUser(auth.currentUser);
       setModalDeleteVisible(!modalDeleteVisible);
@@ -308,6 +308,7 @@ const Conta = () => {
             }
           />
         </TouchableOpacity>
+        <Text style={styles.tipText}>* clique na foto acima pra mudar de foto de perfil</Text>
         <Hr />
         <View style={styles.updateEmail}>
           <Text style={styles.emailHeader}>E-mail</Text>
@@ -692,6 +693,11 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
   },
+  tipText: {
+    fontFamily: 'Urbanist',
+    fontSize: 13,
+    color: 'gray', 
+  }
 });
 
 export default Conta;

@@ -69,10 +69,6 @@ const LoginPage = ({ navigation }) => {
         email,
         password,
       );
-      Toast.show({
-        type: "success",
-        text1: "Cadastrado com sucesso!",
-      });
       setLoading(false);
     } catch (e) {
       Toast.show({
