@@ -308,7 +308,9 @@ const Conta = () => {
             }
           />
         </TouchableOpacity>
-        <Text style={styles.tipText}>* clique na foto acima pra mudar de foto de perfil</Text>
+        <Text style={styles.tipText}>
+          * clique na foto acima pra mudar de foto de perfil
+        </Text>
         <Hr />
         <View style={styles.updateEmail}>
           <Text style={styles.emailHeader}>E-mail</Text>
@@ -694,10 +696,10 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
   },
   tipText: {
-    fontFamily: 'Urbanist',
+    fontFamily: "Urbanist",
     fontSize: 13,
-    color: 'gray', 
-  }
+    color: "gray",
+  },
 });
 
 export default Conta;

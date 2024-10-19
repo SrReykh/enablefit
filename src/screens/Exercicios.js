@@ -15,49 +15,212 @@ const DATA = [
   {
     title: "Costas",
     data: [
-      "Remada curvada",
-      "Remada serrote",
-      "Barra fixa",
-      "Barra fixa",
-      "Barra fixa",
-      "Barra fixa",
-      "Barra fixa",
-      "Barra fixa",
-      "Barra fixa",
-      "Barra fixa",
-      "Barra fixa",
+      {
+        nome: "Remada curvada",
+        deficiencias: [
+          "Amputação de Braço",
+          "Amputação de Perna",
+          "Paralisia Cerebral",
+          "Lesão Medular",
+        ],
+      },
+      {
+        nome: "Remada serrote",
+        deficiencias: ["Amputação de Braço", "Distrofia Muscular", "Artrite"],
+      },
+      {
+        nome: "Barra fixa",
+        deficiencias: ["Amputação de Braço", "Paralisia Cerebral"],
+      },
+      {
+        nome: "Puxada com faixa elástica",
+        deficiencias: ["Amputação de Braço", "Cegueira", "Surdez"],
+      },
+      {
+        nome: "Superman",
+        deficiencias: ["Lesão Medular", "Dificuldades na Coordenação Motora"],
+      },
+      {
+        nome: "Extensão de costas",
+        deficiencias: ["Lesão Medular", "Dificuldades na Coordenação Motora"],
+      },
+      {
+        nome: "Remada unilateral com halteres",
+        deficiencias: [
+          "Amputação de Braço",
+          "Paralisia Cerebral",
+          "Lesão Medular",
+        ],
+      },
+      {
+        nome: "Remada com faixa elástica",
+        deficiencias: [
+          "Amputação de Braço",
+          "Artrite",
+          "Dificuldades na Coordenação Motora",
+        ],
+      },
+      {
+        nome: "Puxada na barra assistida",
+        deficiencias: ["Amputação de Braço", "Paralisia Cerebral"],
+      },
+      {
+        nome: "Levantamento terra com halteres",
+        deficiencias: ["Lesão Medular", "Artrite"],
+      },
     ],
   },
   {
     title: "Peito",
     data: [
-      "Supino reto",
-      "Peck-deck",
-      "Supino inclinado com halteres",
-      "Supino inclinado com halteres",
-      "Supino inclinado com halteres",
-      "Supino inclinado com halteres",
-      "Supino inclinado com halteres",
-      "Supino inclinado com halteres",
-      "Supino inclinado com halteres",
-      "Supino inclinado com halteres",
+      {
+        nome: "Supino reto com halteres",
+        deficiencias: ["Amputação de Braço", "Lesão Medular"],
+      },
+      {
+        nome: "Peck-deck",
+        deficiencias: ["Amputação de Braço", "Paralisia Cerebral"],
+      },
+      {
+        nome: "Flexão de braços adaptada",
+        deficiencias: ["Amputação de Braço", "Lesão Medular"],
+      },
+      {
+        nome: "Supino inclinado com faixa elástica",
+        deficiencias: ["Amputação de Braço", "Artrite"],
+      },
+      {
+        nome: "Push-up na parede",
+        deficiencias: [
+          "Amputação de Perna",
+          "Dificuldades na Coordenação Motora",
+        ],
+      },
+      {
+        nome: "Crossover com faixa elástica",
+        deficiencias: ["Amputação de Braço", "Cegueira"],
+      },
+      {
+        nome: "Fly com halteres",
+        deficiencias: ["Amputação de Braço", "Paralisia Cerebral"],
+      },
+      {
+        nome: "Supino declinado com halteres",
+        deficiencias: ["Amputação de Braço", "Lesão Medular"],
+      },
+      {
+        nome: "Flexão de braços de joelhos",
+        deficiencias: [
+          "Amputação de Braço",
+          "Dificuldades na Coordenação Motora",
+        ],
+      },
+      {
+        nome: "Push-up com apoio",
+        deficiencias: ["Amputação de Braço", "Artrite"],
+      },
     ],
   },
   {
     title: "Pernas",
     data: [
-      "Legpress",
-      "Stiff",
-      "Agachamento livre com barra",
-      "Stiff",
-      "Stiff",
-      "Stiff",
-      "Stiff",
-      "Stiff",
-      "Stiff",
-      "Stiff",
-      "Stiff",
-      "Stiff",
+      {
+        nome: "Agachamento adaptado",
+        deficiencias: ["Amputação de Perna", "Paralisia Cerebral"],
+      },
+      {
+        nome: "Leg press adaptado",
+        deficiencias: ["Amputação de Perna", "Lesão Medular"],
+      },
+      {
+        nome: "Levantamento terra romeno",
+        deficiencias: ["Amputação de Perna", "Artrite"],
+      },
+      {
+        nome: "Extensão de pernas",
+        deficiencias: ["Amputação de Perna", "Lesão Medular"],
+      },
+      {
+        nome: "Flexão de pernas",
+        deficiencias: [
+          "Amputação de Perna",
+          "Dificuldades na Coordenação Motora",
+        ],
+      },
+      {
+        nome: "Abdução de quadril com faixa elástica",
+        deficiencias: ["Amputação de Perna", "Lesão Medular"],
+      },
+      {
+        nome: "Addução de quadril com faixa elástica",
+        deficiencias: [
+          "Amputação de Perna",
+          "Dificuldades na Coordenação Motora",
+        ],
+      },
+      {
+        nome: "Lunge assistido",
+        deficiencias: ["Amputação de Perna", "Lesão Medular"],
+      },
+      {
+        nome: "Elevação de panturrilha",
+        deficiencias: ["Amputação de Perna", "Artrite"],
+      },
+      {
+        nome: "Agachamento com bola",
+        deficiencias: ["Amputação de Perna", "Paralisia Cerebral"],
+      },
+    ],
+  },
+  {
+    title: "Ombros",
+    data: [
+      {
+        nome: "Desenvolvimento com halteres",
+        deficiencias: ["Amputação de Braço", "Lesão Medular"],
+      },
+      {
+        nome: "Elevação lateral",
+        deficiencias: ["Amputação de Braço", "Distrofia Muscular"],
+      },
+      {
+        nome: "Elevação frontal",
+        deficiencias: ["Amputação de Braço", "Artrite"],
+      },
+      {
+        nome: "Remada alta com faixa elástica",
+        deficiencias: ["Amputação de Braço", "Lesão Medular"],
+      },
+      {
+        nome: "Fly invertido",
+        deficiencias: ["Amputação de Braço", "Paralisia Cerebral"],
+      },
+      {
+        nome: "Encolhimento de ombros",
+        deficiencias: [
+          "Amputação de Braço",
+          "Dificuldades na Coordenação Motora",
+        ],
+      },
+      {
+        nome: "Desenvolvimento com faixa elástica",
+        deficiencias: ["Amputação de Braço", "Lesão Medular"],
+      },
+      {
+        nome: "Rotação externa com faixa elástica",
+        deficiencias: ["Amputação de Braço", "Cegueira"],
+      },
+      {
+        nome: "Rotação interna com faixa elástica",
+        deficiencias: [
+          "Amputação de Braço",
+          "Dificuldades na Coordenação Motora",
+        ],
+      },
+      {
+        nome: "Elevação lateral em pé",
+        deficiencias: ["Amputação de Braço", "Paralisia Cerebral"],
+      },
     ],
   },
 ];
@@ -113,9 +276,12 @@ const Exercicios = ({ navigation }) => {
           <Button
             style={styles.buttonStyle}
             color="#282828"
-            title={item}
+            title={item.nome}
             onPress={() => {
-              navigation.navigate({ name: "MyModal", params: { title: item } });
+              navigation.navigate({
+                name: "MyModal",
+                params: { title: item.nome },
+              });
             }}
           />
         </View>

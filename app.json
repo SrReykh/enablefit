@@ -11,7 +11,8 @@
       "backgroundColor": "#292c41"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.whitehatboys.enablefit"
     },
     "android": {
       "adaptiveIcon": {

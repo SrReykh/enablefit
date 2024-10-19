@@ -6,6 +6,7 @@ import Recuperar from "./src/screens/login/Recuperar";
 import WelcomeScreen from "./src/screens/WelcomeScreen";
 import WelcomeScreenDataNasc from "./src/screens/WelcomeScreenDataNasc";
 import WelcomeScreenLastInfo from "./src/screens/WelcomeScreenLastInfo";
+import AdicionarNovoTreino from "./src/screens/AdicionarNovoTreino";
 import { useEffect, useState } from "react";
 import { onAuthStateChanged } from "firebase/auth";
 import { FIREBASE_AUTH } from "./firebaseConfig";
@@ -15,13 +16,13 @@ import Toast, {
   InfoToast,
 } from "react-native-toast-message";
 
-import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { NavigationContainer } from "@react-navigation/native";
 import * as React from "react";
 
 const Stack = createNativeStackNavigator();
-const auth = FIREBASE_AUTH
+const auth = FIREBASE_AUTH;
 
 const toastConfig = {
   success: (props) => (
@@ -80,14 +81,20 @@ const toastConfig = {
 export default function App({ navigation }) {
   const [user, setUser] = useState(null);
   const [initializing, setInitializing] = useState(true);
-  const [isNewAccount, setIsNewAccount] = useState(false); // Estado para controlar se é uma nova conta
+  const [isNewAccount, setIsNewAccount] = useState(false);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(FIREBASE_AUTH, async (usr) => {
       if (usr) {
         const accountCreatedAt = Date.parse(usr.metadata.creationTime);
         const currentTime = Date.now();
-        const uid = auth.currentUser.uid
+        const uid = auth.currentUser.uid;
+
+        if (currentTime - accountCreatedAt <= 10000) {
+          setIsNewAccount(true);
+        } else {
+          setIsNewAccount(false);
+        }
 
         setUser(usr);
       } else {
@@ -96,7 +103,7 @@ export default function App({ navigation }) {
       setInitializing(false);
     });
 
-    return () => unsubscribe(); 
+    return () => unsubscribe();
   }, []);
 
   if (initializing) return <ActivityIndicator size="large" color="#0000ff" />;
@@ -107,16 +114,32 @@ export default function App({ navigation }) {
         <Stack.Navigator
           screenOptions={{
             headerShown: false,
-            presentation: 'transparentModal',
+            presentation: "transparentModal",
           }}
         >
           {user ? (
+            isNewAccount ? (
               <>
                 <Stack.Screen name="WelcomeScreen" component={WelcomeScreen} />
-                <Stack.Screen name="WelcomeScreenDataNasc" component={WelcomeScreenDataNasc} />
-                <Stack.Screen name="WelcomeScreenLastInfo" component={WelcomeScreenLastInfo} />
+                <Stack.Screen
+                  name="WelcomeScreenDataNasc"
+                  component={WelcomeScreenDataNasc}
+                />
+                <Stack.Screen
+                  name="WelcomeScreenLastInfo"
+                  component={WelcomeScreenLastInfo}
+                />
                 <Stack.Screen name="BottomBar" component={BottomBar} />
               </>
+            ) : (
+              <>
+                <Stack.Screen name="BottomBar" component={BottomBar} />
+                <Stack.Screen
+                  name="AdicionarNovoTreino"
+                  component={AdicionarNovoTreino}
+                />
+              </>
+            )
           ) : (
             <>
               <Stack.Screen name="Login" component={Login} />
@@ -126,7 +149,12 @@ export default function App({ navigation }) {
           )}
         </Stack.Navigator>
       </NavigationContainer>
-      <Toast position="bottom" bottomOffset={55} keyboardOffset={10} config={toastConfig} />
-     </GestureHandlerRootView>
+      <Toast
+        position="bottom"
+        bottomOffset={55}
+        keyboardOffset={10}
+        config={toastConfig}
+      />
+    </GestureHandlerRootView>
   );
 }

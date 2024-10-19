@@ -8,10 +8,14 @@ import {
   ScrollView,
   FlatList,
   Modal,
+  SectionList,
 } from "react-native";
 import { React, useEffect, useState } from "react";
 import DropDownPicker from "react-native-dropdown-picker";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
+import Feather from "@expo/vector-icons/Feather";
+import MaterialIcons from "@expo/vector-icons/MaterialIcons";
+import AntDesign from "@expo/vector-icons/AntDesign";
 import Toast from "react-native-toast-message";
 import Hr from "../components/Hr";
 import {
@@ -41,11 +45,9 @@ DropDownPicker.addTranslation("BR", {
 DropDownPicker.setLanguage("BR");
 
 const windowWidth = Dimensions.get("window").width;
-const windowHeight = Dimensions.get("window").height;
-
-const TreinoStack = createStackNavigator();
 
 export default Treino = ({ navigation }) => {
+  const [treinoData, setTreinoData] = useState([]);
   const [modalAddDefVisible, setModalAddDefVisible] = useState(false);
   const [defs, setDefs] = useState([]);
   const [open, setOpen] = useState(false);
@@ -64,7 +66,6 @@ export default Treino = ({ navigation }) => {
     { label: "Esclerose Múltipla", value: "Esclerose Múltipla" },
     { label: "Cegueira", value: "Cegueira" },
     { label: "Baixa Visão", value: "Baixa Visão" },
-    { label: "Surdez", value: "Surdez" },
     { label: "Perda Auditiva Parcial", value: "Perda Auditiva Parcial" },
     {
       label: "Transtorno do Espectro Autista (TEA)",
@@ -82,6 +83,30 @@ export default Treino = ({ navigation }) => {
     { label: "Artrite", value: "Artrite" },
     { label: "Doenças Reumáticas", value: "Doenças Reumáticas" },
   ]);
+
+  async function updateWorkout() {
+    const docRef = doc(db, "workouts", auth.currentUser.email);
+
+    try {
+      const docSnap = await getDoc(docRef);
+      if (docSnap.exists()) {
+        const workoutData = docSnap.data();
+        const treinoData = workoutData.exercicios.map((exercicios) => ({
+          title: exercicios.dia,
+          data: exercicios.exercicios,
+        }));
+        setTreinoData(treinoData);
+      } else {
+        return [];
+      }
+    } catch (e) {
+      Toast.show({
+        type: "error",
+        text1: e.message,
+      });
+      return [];
+    }
+  }
 
   async function setDeficiencia(value) {
     const actualDefs = await getDeficiencia();
@@ -125,7 +150,7 @@ export default Treino = ({ navigation }) => {
       const docSnap = await getDoc(docRef);
 
       if (docSnap.exists()) {
-        const deficiencia = docSnap.data().deficiencia;
+        const deficiencia = docSnap.data().deficiencia || [];
         setDefs(deficiencia);
         return deficiencia;
       }
@@ -159,6 +184,10 @@ export default Treino = ({ navigation }) => {
   useEffect(() => {
     getDeficiencia();
   }, []);
+  
+  useEffect(() => {
+    updateWorkout();
+  }, [treinoData])
 
   return (
     <View style={styles.container}>
@@ -192,6 +221,17 @@ export default Treino = ({ navigation }) => {
                 />
               </View>
             )}
+            ListEmptyComponent={() => {
+              return (
+                <View
+                  style={{ flexDirection: "row", alignItems: "center", gap: 5 }}
+                >
+                  <Text style={styles.flatListTextDef}>
+                    Lista de deficiências vazia
+                  </Text>
+                </View>
+              );
+            }}
           />
         </View>
       </View>
@@ -238,7 +278,6 @@ export default Treino = ({ navigation }) => {
               >
                 <Text style={styles.btnAddText}>Adicionar</Text>
               </TouchableOpacity>
-
               <TouchableOpacity
                 style={styles.BtnAdd}
                 onPress={() => {
@@ -251,6 +290,51 @@ export default Treino = ({ navigation }) => {
           </View>
         </View>
       </Modal>
+
+      <View style={styles.headerRotina}>
+        <Text style={styles.headerRotinaText}>Rotina de treino</Text>
+        <Hr />
+
+        <TouchableOpacity
+          style={styles.buttonAddNewWorkout}
+          onPress={() => {
+            if (defs.length == 0)
+              return Toast.show({
+                type: "info",
+                text1: "Você não tem nenhuma deficiência selecionada."
+              })
+            
+            navigation.navigate("AdicionarNovoTreino", {
+              deficiencia: defs,
+            });
+          }}
+        >
+          <Text style={styles.buttonAddNewWorkoutText}>
+            Nova rotina de treino
+          </Text>
+        </TouchableOpacity>
+
+        <View style={styles.sectionListRootView}>
+          <SectionList
+            contentContainerStyle={styles.sectionList}
+            sections={treinoData}
+            keyExtractor={(item, index) => item.id + index}
+            renderSectionHeader={({ section: { title } }) => (
+              <Text style={styles.diaText}>{title}</Text>
+            )}
+            renderItem={({ item }) => (
+              <View style={styles.exercicioContainer}>
+                <Text style={styles.exercicioText}>{item.nome}</Text>
+                <View style={styles.buttonsContainer}>
+                  <TouchableOpacity style={styles.buttonConcluido}>
+                    <AntDesign name="checkcircleo" size={24} color="white" />
+                  </TouchableOpacity>
+                </View>
+              </View>
+            )}
+          />
+        </View>
+      </View>
     </View>
   );
 };
@@ -271,7 +355,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   deficienciaText: {
-    color: "black",
+    color: "white",
     marginTop: 5,
     fontSize: 25,
     fontFamily: "Urbanist",
@@ -284,7 +368,7 @@ const styles = StyleSheet.create({
   modalAddDeficiencia: {
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "white",
+    backgroundColor: "#282828",
     padding: 30,
     borderRadius: 40,
   },
@@ -338,5 +422,92 @@ const styles = StyleSheet.create({
     fontFamily: "Urbanist",
     fontSize: 20,
     padding: 3,
+  },
+  headerRotina: {
+    flex: 1,
+    marginTop: 10,
+  },
+  headerRotinaText: {
+    paddingBottom: 10,
+    color: "white",
+    fontFamily: "Urbanist",
+    fontSize: 40,
+    textAlign: "center",
+  },
+  buttonAddNewWorkout: {
+    marginTop: 10,
+    marginLeft: 15,
+    width: 200,
+    height: 40,
+    backgroundColor: "white",
+    borderRadius: 8,
+    padding: 5,
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 10,
+  },
+  buttonAddNewWorkoutText: {
+    color: "black",
+    fontSize: 20,
+    fontFamily: "Urbanist",
+    textAlign: "center",
+  },
+  diaText: {
+    color: "white",
+    fontSize: 25,
+    fontWeight: "bold",
+    marginBottom: 10,
+    backgroundColor: "#151723",
+    padding: 10,
+    borderRadius: 10,
+  },
+  exercicioContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    backgroundColor: "#3c3c3c",
+    borderRadius: 5,
+    padding: 10,
+    marginBottom: 10,
+    width: windowWidth - 60,
+  },
+  exercicioText: {
+    color: "white",
+    fontSize: 16,
+  },
+  buttonsContainer: {
+    flexDirection: "row",
+    gap: 10,
+  },
+  buttonEdit: {
+    backgroundColor: "orange",
+    padding: 5,
+    borderRadius: 5,
+  },
+  buttonRemove: {
+    backgroundColor: "red",
+    padding: 5,
+    borderRadius: 5,
+  },
+  buttonConcluido: {
+    backgroundColor: "green",
+    padding: 5,
+    borderRadius: 5,
+  },
+  buttonText: {
+    color: "white",
+  },
+  sectionList: {
+    width: windowWidth - 30,
+    alignItems: "center",
+    backgroundColor: "#151723",
+    borderRadius: 5,
+    paddingBottom: 40,
+  },
+  sectionListRootView: {
+    flex: 1,
+    backgroundColor: "#292c41",
+    justifyContent: "center",
+    alignItems: "center",
   },
 });

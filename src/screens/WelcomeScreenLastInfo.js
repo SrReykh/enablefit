@@ -55,20 +55,20 @@ export default function WelcomeScreen({ route, navigation }) {
       return Toast.show({
         type: "info",
         text1: "Preencha todos os campos!",
-      }); 
-    
+      });
+
     if (altura < 50 || altura > 250) {
       return Toast.show({
         type: "info",
-        text1: "Altura inválida"
+        text1: "Altura inválida",
       });
     }
-    
+
     if (peso < 20 || peso > 300) {
       return Toast.show({
         type: "info",
-        text1: "Peso inválido"
-      })
+        text1: "Peso inválido",
+      });
     }
 
     try {
@@ -80,9 +80,9 @@ export default function WelcomeScreen({ route, navigation }) {
         altura: altura,
         data_cadastro: auth.currentUser.metadata.creationTime,
       });
-      
-      navigation.navigate("BottomBar")
-      
+
+      navigation.navigate("BottomBar");
+
       Toast.show({
         type: "success",
         text1: "Cadastro completo! Enable Fit agradece.",
@@ -94,7 +94,7 @@ export default function WelcomeScreen({ route, navigation }) {
       });
     }
   }
-  
+
   return (
     <View style={styles.container}>
       <View style={styles.WelcomeView}>

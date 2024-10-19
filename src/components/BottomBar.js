@@ -9,7 +9,7 @@ import Treino from "../screens/Treino";
 
 const Tab = createBottomTabNavigator();
 
-const BottomBar = () => {  
+const BottomBar = () => {
   return (
     <>
       <Tab.Navigator
