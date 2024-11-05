@@ -46,7 +46,8 @@ DropDownPicker.setLanguage("BR");
 
 const windowWidth = Dimensions.get("window").width;
 
-export default Treino = ({ navigation }) => {
+export default Treino = ({ navigation, route }) => {
+  const [hiddenWorkoutButton, setHiddenWorkoutButton] = useState(false);
   const [treinoData, setTreinoData] = useState([]);
   const [modalAddDefVisible, setModalAddDefVisible] = useState(false);
   const [defs, setDefs] = useState([]);
@@ -64,38 +65,30 @@ export default Treino = ({ navigation }) => {
     { label: "Lesão Medular", value: "Lesão Medular" },
     { label: "Distrofia Muscular", value: "Distrofia Muscular" },
     { label: "Esclerose Múltipla", value: "Esclerose Múltipla" },
-    { label: "Cegueira", value: "Cegueira" },
-    { label: "Baixa Visão", value: "Baixa Visão" },
-    { label: "Perda Auditiva Parcial", value: "Perda Auditiva Parcial" },
-    {
-      label: "Transtorno do Espectro Autista (TEA)",
-      value: "Transtorno do Espectro Autista (TEA)",
-    },
+ 
     { label: "Síndrome de Down", value: "Síndrome de Down" },
-    {
-      label: "Transtorno do Déficit de Atenção e Hiperatividade (TDAH)",
-      value: "Transtorno do Déficit de Atenção e Hiperatividade (TDAH)",
-    },
     {
       label: "Dificuldades na Coordenação Motora",
       value: "Dificuldades na Coordenação Motora",
     },
-    { label: "Artrite", value: "Artrite" },
     { label: "Doenças Reumáticas", value: "Doenças Reumáticas" },
   ]);
 
   async function updateWorkout() {
     const docRef = doc(db, "workouts", auth.currentUser.email);
-
+  
     try {
       const docSnap = await getDoc(docRef);
       if (docSnap.exists()) {
         const workoutData = docSnap.data();
-        const treinoData = workoutData.exercicios.map((exercicios) => ({
-          title: exercicios.dia,
-          data: exercicios.exercicios,
+        const treino = workoutData.exercicios.map((dia) => ({
+          title: dia.dia, 
+          data: dia.exercicios.map((exercicio) => ({
+            nome: exercicio.musculo, 
+            exercicios: exercicio.exercicio 
+          })),
         }));
-        setTreinoData(treinoData);
+        setTreinoData(treino);
       } else {
         return [];
       }
@@ -107,6 +100,7 @@ export default Treino = ({ navigation }) => {
       return [];
     }
   }
+
 
   async function setDeficiencia(value) {
     const actualDefs = await getDeficiencia();
@@ -184,11 +178,12 @@ export default Treino = ({ navigation }) => {
   useEffect(() => {
     getDeficiencia();
   }, []);
-  
+
   useEffect(() => {
     updateWorkout();
-  }, [treinoData])
+  }, []);
 
+  
   return (
     <View style={styles.container}>
       <View style={styles.viewMeuTreino}>
@@ -234,6 +229,24 @@ export default Treino = ({ navigation }) => {
             }}
           />
         </View>
+          <TouchableOpacity
+            style={styles.buttonAddNewWorkout}
+            onPress={() => {
+              if (defs.length == 0)
+                return Toast.show({
+                  type: "info",
+                  text1: "Você não tem nenhuma deficiência selecionada.",
+                });
+  
+              navigation.navigate("AdicionarNovoTreino", {
+                deficiencia: defs,
+              });
+            }}
+          >
+            <Text style={styles.buttonAddNewWorkoutText}>
+              Nova rotina de treino
+            </Text>
+          </TouchableOpacity>
       </View>
       <Modal
         animationType="slide"
@@ -264,6 +277,7 @@ export default Treino = ({ navigation }) => {
               }}
               dropDownContainerStyle={{
                 width: windowWidth - 30,
+                marginTop: 12,
                 marginLeft: 15,
               }}
             />
@@ -295,42 +309,36 @@ export default Treino = ({ navigation }) => {
         <Text style={styles.headerRotinaText}>Rotina de treino</Text>
         <Hr />
 
-        <TouchableOpacity
-          style={styles.buttonAddNewWorkout}
-          onPress={() => {
-            if (defs.length == 0)
-              return Toast.show({
-                type: "info",
-                text1: "Você não tem nenhuma deficiência selecionada."
-              })
-            
-            navigation.navigate("AdicionarNovoTreino", {
-              deficiencia: defs,
-            });
-          }}
-        >
-          <Text style={styles.buttonAddNewWorkoutText}>
-            Nova rotina de treino
-          </Text>
-        </TouchableOpacity>
-
         <View style={styles.sectionListRootView}>
           <SectionList
             contentContainerStyle={styles.sectionList}
             sections={treinoData}
-            keyExtractor={(item, index) => item.id + index}
+            keyExtractor={(item, index) => item.nome + index}
             renderSectionHeader={({ section: { title } }) => (
               <Text style={styles.diaText}>{title}</Text>
             )}
             renderItem={({ item }) => (
-              <View style={styles.exercicioContainer}>
-                <Text style={styles.exercicioText}>{item.nome}</Text>
-                <View style={styles.buttonsContainer}>
-                  <TouchableOpacity style={styles.buttonConcluido}>
-                    <AntDesign name="checkcircleo" size={24} color="white" />
-                  </TouchableOpacity>
-                </View>
-              </View>
+              <>
+                <Text style={styles.subHeaderMuscles}>{item.nome}</Text>
+                
+                  {item.exercicios.map((exercicio, idx) => (
+                    <View style={styles.exercicioContainer}>
+                      <Text key={idx} style={styles.exercicioText}>
+                        {exercicio}
+                      </Text>
+                      <View style={styles.buttonsContainer}>
+                        <TouchableOpacity 
+                          style={styles.buttonConcluido} 
+                          onPress={() => {
+                            
+                          }}>
+                          <AntDesign name="checkcircleo" size={24} color="white" />
+                        </TouchableOpacity>
+                    </View>
+                  </View>
+                  ))}
+                  
+              </>
             )}
           />
         </View>
@@ -462,9 +470,9 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
   exercicioContainer: {
-    flexDirection: "row",
+    flexDirection: "column",
     justifyContent: "space-between",
-    alignItems: "center",
+    alignItems: "flex-start",
     backgroundColor: "#3c3c3c",
     borderRadius: 5,
     padding: 10,
@@ -510,4 +518,9 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
+  subHeaderMuscles: {
+    fontFamily: "Urbanist",
+    color: 'white',
+    fontSize: 20,
+  }
 });

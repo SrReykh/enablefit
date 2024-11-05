@@ -14,6 +14,7 @@ import Toast from "react-native-toast-message";
 import { FlatList } from "react-native";
 import { FIREBASE_AUTH, db } from "../../firebaseConfig";
 import { setDoc, doc } from "firebase/firestore";
+import { exerciciosPorDeficiencia } from "../assets/exerciciosAdaptados";
 
 const auth = FIREBASE_AUTH;
 
@@ -25,240 +26,87 @@ export default function AdicionarNovoTreino({ navigation, route }) {
   const [autoCreate, setAutoCreate] = useState(false);
   const [frequency, setFrequency] = useState("");
 
-  const deficiencias = route.params.deficiencia;
-
-  function gerarTreinoAutomatico(deficiencia, frequenciaSemanal) {
-    const exerciciosPorDeficiencia = {
-      "Amputação de Braço": [
-        { id: "1", nome: "Remada curvada" },
-        { id: "2", nome: "Remada serrote" },
-        { id: "3", nome: "Barra fixa" },
-        { id: "4", nome: "Puxada com faixa elástica" },
-        { id: "5", nome: "Remada unilateral com halteres" },
-        { id: "6", nome: "Remada com faixa elástica" },
-        { id: "7", nome: "Puxada na barra assistida" },
-        { id: "8", nome: "Supino reto com halteres" },
-        { id: "9", nome: "Peck-deck" },
-        { id: "10", nome: "Flexão de braços adaptada" },
-        { id: "11", nome: "Supino inclinado com faixa elástica" },
-        { id: "12", nome: "Crossover com faixa elástica" },
-        { id: "13", nome: "Fly com halteres" },
-        { id: "14", nome: "Supino declinado com halteres" },
-        { id: "15", nome: "Flexão de braços de joelhos" },
-        { id: "16", nome: "Push-up com apoio" },
-        { id: "17", nome: "Desenvolvimento com halteres" },
-        { id: "18", nome: "Elevação lateral" },
-        { id: "19", nome: "Elevação frontal" },
-        { id: "20", nome: "Remada alta com faixa elástica" },
-        { id: "21", nome: "Fly invertido" },
-        { id: "22", nome: "Encolhimento de ombros" },
-        { id: "23", nome: "Desenvolvimento com faixa elástica" },
-        { id: "24", nome: "Rotação externa com faixa elástica" },
-        { id: "25", nome: "Rotação interna com faixa elástica" },
-        { id: "26", nome: "Elevação lateral em pé" },
-      ],
-      "Amputação de Perna": [
-        { id: "27", nome: "Remada curvada" },
-        { id: "28", nome: "Push-up na parede" },
-        { id: "29", nome: "Agachamento adaptado" },
-        { id: "30", nome: "Leg press adaptado" },
-        { id: "31", nome: "Levantamento terra romeno" },
-        { id: "32", nome: "Extensão de pernas" },
-        { id: "33", nome: "Flexão de pernas" },
-        { id: "34", nome: "Abdução de quadril com faixa elástica" },
-        { id: "35", nome: "Addução de quadril com faixa elástica" },
-        { id: "36", nome: "Lunge assistido" },
-        { id: "37", nome: "Elevação de panturrilha" },
-        { id: "38", nome: "Agachamento com bola" },
-      ],
-      "Paralisia Cerebral": [
-        { id: "39", nome: "Remada curvada" },
-        { id: "40", nome: "Barra fixa" },
-        { id: "41", nome: "Remada unilateral com halteres" },
-        { id: "42", nome: "Puxada na barra assistida" },
-        { id: "43", nome: "Peck-deck" },
-        { id: "44", nome: "Fly com halteres" },
-        { id: "45", nome: "Agachamento adaptado" },
-        { id: "46", nome: "Agachamento com bola" },
-        { id: "47", nome: "Fly invertido" },
-        { id: "48", nome: "Elevação lateral em pé" },
-      ],
-      "Lesão Medular": [
-        { id: "49", nome: "Remada curvada" },
-        { id: "50", nome: "Superman" },
-        { id: "51", nome: "Extensão de costas" },
-        { id: "52", nome: "Remada unilateral com halteres" },
-        { id: "53", nome: "Levantamento terra com halteres" },
-        { id: "54", nome: "Supino reto com halteres" },
-        { id: "55", nome: "Flexão de braços adaptada" },
-        { id: "56", nome: "Supino declinado com halteres" },
-        { id: "57", nome: "Leg press adaptado" },
-        { id: "58", nome: "Extensão de pernas" },
-        { id: "59", nome: "Abdução de quadril com faixa elástica" },
-        { id: "60", nome: "Lunge assistido" },
-        { id: "61", nome: "Desenvolvimento com halteres" },
-        { id: "62", nome: "Remada alta com faixa elástica" },
-        { id: "63", nome: "Desenvolvimento com faixa elástica" },
-      ],
-      "Dificuldades na Coordenação Motora": [
-        { id: "64", nome: "Superman" },
-        { id: "65", nome: "Extensão de costas" },
-        { id: "66", nome: "Remada com faixa elástica" },
-        { id: "67", nome: "Push-up na parede" },
-        { id: "68", nome: "Flexão de braços de joelhos" },
-        { id: "69", nome: "Encolhimento de ombros" },
-        { id: "70", nome: "Flexão de pernas" },
-        { id: "71", nome: "Addução de quadril com faixa elástica" },
-        { id: "72", nome: "Rotação interna com faixa elástica" },
-      ],
-      "Distrofia Muscular": [
-        { id: "73", nome: "Remada serrote" },
-        { id: "74", nome: "Elevação lateral" },
-      ],
-      Artrite: [
-        { id: "75", nome: "Remada serrote" },
-        { id: "76", nome: "Remada com faixa elástica" },
-        { id: "77", nome: "Levantamento terra com halteres" },
-        { id: "78", nome: "Supino inclinado com faixa elástica" },
-        { id: "79", nome: "Push-up com apoio" },
-        { id: "80", nome: "Levantamento terra romeno" },
-        { id: "81", nome: "Elevação frontal" },
-        { id: "82", nome: "Elevação de panturrilha" },
-      ],
-      Cegueira: [
-        { id: "83", nome: "Puxada com faixa elástica" },
-        { id: "84", nome: "Crossover com faixa elástica" },
-        { id: "85", nome: "Rotação externa com faixa elástica" },
-      ],
-      "Ausência de Mãos ou Dedos": [
-        { id: "87", nome: "Agachamento com apoio" },
-        { id: "88", nome: "Leg press adaptado" },
-        { id: "89", nome: "Abdução de quadril com faixa elástica" },
-        { id: "90", nome: "Extensão de pernas" },
-        { id: "91", nome: "Elevação de panturrilha" },
-      ],
-      "Ausência de Pés ou Dedos dos Pés": [
-        { id: "92", nome: "Remada curvada" },
-        { id: "93", nome: "Puxada na barra assistida" },
-        { id: "94", nome: "Supino reto com halteres" },
-        { id: "95", nome: "Desenvolvimento com halteres" },
-        { id: "96", nome: "Fly com halteres" },
-      ],
-      "Esclerose Múltipla": [
-        { id: "97", nome: "Remada com faixa elástica" },
-        { id: "98", nome: "Flexão de braços adaptada" },
-        { id: "99", nome: "Desenvolvimento com faixa elástica" },
-        { id: "100", nome: "Agachamento com bola" },
-        { id: "101", nome: "Leg press adaptado" },
-      ],
-      "Baixa Visão": [
-        { id: "102", nome: "Puxada com faixa elástica" },
-        { id: "103", nome: "Fly com halteres" },
-        { id: "104", nome: "Rotação externa com faixa elástica" },
-        { id: "105", nome: "Push-up com apoio" },
-        { id: "106", nome: "Desenvolvimento com halteres" },
-      ],
-      "Perda Auditiva Parcial": [
-        { id: "107", nome: "Remada serrote" },
-        { id: "108", nome: "Supino declinado com halteres" },
-        { id: "109", nome: "Elevação lateral" },
-        { id: "110", nome: "Fly invertido" },
-        { id: "111", nome: "Crossover com faixa elástica" },
-      ],
-      "Transtorno do Espectro Autista (TEA)": [
-        { id: "112", nome: "Remada curvada" },
-        { id: "113", nome: "Agachamento com apoio" },
-        { id: "114", nome: "Push-up na parede" },
-        { id: "115", nome: "Desenvolvimento com faixa elástica" },
-        { id: "116", nome: "Rotação interna com faixa elástica" },
-      ],
-      "Síndrome de Down": [
-        { id: "117", nome: "Remada unilateral com halteres" },
-        { id: "118", nome: "Flexão de braços de joelhos" },
-        { id: "119", nome: "Leg press adaptado" },
-        { id: "120", nome: "Elevação de panturrilha" },
-        { id: "121", nome: "Agachamento com bola" },
-      ],
-      "Transtorno do Déficit de Atenção e Hiperatividade (TDAH)": [
-        { id: "122", nome: "Push-up com apoio" },
-        { id: "123", nome: "Supino reto com halteres" },
-        { id: "124", nome: "Desenvolvimento com halteres" },
-        { id: "125", nome: "Remada com faixa elástica" },
-        { id: "126", nome: "Agachamento adaptado" },
-      ],
-      "Doenças Reumáticas": [
-        { id: "127", nome: "Levantamento terra romeno" },
-        { id: "128", nome: "Crossover com faixa elástica" },
-        { id: "129", nome: "Rotação interna com faixa elástica" },
-        { id: "130", nome: "Flexão de braços adaptada" },
-        { id: "131", nome: "Abdução de quadril com faixa elástica" },
-      ],
-    };
-
-    const todosExercicios = deficiencia.reduce((acc, deficiencia) => {
-      if (exerciciosPorDeficiencia[deficiencia]) {
-        acc.push(...exerciciosPorDeficiencia[deficiencia]);
-      }
-      return acc;
-    }, []);
-
-    if (todosExercicios.length === 0) {
-      console.error(
-        "Nenhum exercício encontrado para as deficiências fornecidas.",
-      );
-      return null;
+  const deficienciasTelaAnterior = route.params.deficiencia;
+  
+  function gerarTreinoAutomatico(deficiencia, frequenciaSemanal) {  
+    const exerciciosSelecionadosProUsuario = deficiencia
+       .filter(def => def in exerciciosPorDeficiencia)
+       .map(def => exerciciosPorDeficiencia[def]);
+    
+    // console.log(exerciciosSelecionadosProUsuario)
+    
+    if (frequenciaSemanal == 3) {
+      const rotinaDeTreino = [
+        {
+          dia: 'Segunda',
+          exercicios: [
+            {
+              musculo: 'Costas',
+              exercicio: exerciciosSelecionadosProUsuario[0].Costas
+            },
+            {
+              musculo: 'Biceps',
+              exercicio: exerciciosSelecionadosProUsuario[0].Biceps
+            },
+          ]
+        },
+        {
+          dia: 'Quarta',
+          exercicios: [
+            {
+              musculo: 'Peito',
+              exercicio: exerciciosSelecionadosProUsuario[0].Peito
+            },
+            {
+              musculo: 'Triceps',
+              exercicio: exerciciosSelecionadosProUsuario[0].Triceps
+            },
+          ]
+        },
+        {
+          dia: 'Sexta',
+          exercicios: [
+            {
+              musculo: 'Perna',
+              exercicio: exerciciosSelecionadosProUsuario[0].Pernas
+            }
+          ]
+        },
+      ]
+      
+      // console.log(rotinaDeTreino)
+      return rotinaDeTreino
     }
-
-    // Gera o treino
-    const treino = [];
-    const diasDaSemana = [
-      "Segunda",
-      "Terça",
-      "Quarta",
-      "Quinta",
-      "Sexta",
-      "Sábado",
-      "Domingo",
-    ];
-
-    for (let i = 0; i < frequenciaSemanal; i++) {
-      const dia = diasDaSemana[i];
-      const exerciciosParaODia = [];
-
-      // Seleciona 3 exercícios aleatórios para cada dia
-      for (let j = 0; j < 3; j++) {
-        const exercicioAleatorio =
-          todosExercicios[Math.floor(Math.random() * todosExercicios.length)];
-        exerciciosParaODia.push(exercicioAleatorio);
-      }
-      treino.push({ dia, exercicios: exerciciosParaODia });
+    
+    if (frequenciaSemanal == 4) {
+      
     }
-    return {
-      workout_id: "1",
-      user_id: "123",
-      data_inicio: Date.now(),
-      frequencia_semanal: frequenciaSemanal.toString(),
-      exercicios: treino,
-    };
+    
+    if (frequenciaSemanal == 5 ) {
+      
+    }
   }
 
   async function handleAddWorkoutToDataBase() {
-    const exercicios = gerarTreinoAutomatico(deficiencias, frequency);
-
+    const rotinaDeTreino = gerarTreinoAutomatico(deficienciasTelaAnterior, frequency);
+    // return console.log(JSON.stringify(exercicios, null, 2));
+    
     try {
       await setDoc(doc(db, "workouts", auth.currentUser.email), {
         workout_id: "1",
         user_id: "123",
-        data_inicio: exercicios.data_inicio,
-        frequencia_semanal: exercicios.frequencia_semanal,
-        exercicios: exercicios.exercicios,
+        data_inicio: Date.now(),
+        frequencia_semanal: frequency.toString(),
+        exercicios: rotinaDeTreino,
       });
 
       Toast.show({
         type: "success",
         text1: "Rotina criada com sucesso!",
       });
-      navigation.goBack();
+      navigation.navigate("BottomBar", {
+        hiddenButton: true
+      });
     } catch (e) {
       console.log(e.message);
       return Toast.show({
@@ -286,7 +134,7 @@ export default function AdicionarNovoTreino({ navigation, route }) {
         recomendada.
       </Text>
       <View>
-        {deficiencias.map((deficiencia, index) => (
+        {deficienciasTelaAnterior.map((deficiencia, index) => (
           <Text key={index} style={styles.deficienciaText}>
             {deficiencia}
           </Text>
@@ -305,7 +153,7 @@ export default function AdicionarNovoTreino({ navigation, route }) {
       <Text style={styles.frequencyLabel}>Frequência semanal do treino:</Text>
       <TextInput
         style={styles.input}
-        placeholder="Ex: 1-7 vezes por semana"
+        placeholder="Ex: 3-5 vezes por semana"
         placeholderTextColor="#a0a3bd"
         value={frequency}
         onChangeText={setFrequency}
@@ -320,13 +168,20 @@ export default function AdicionarNovoTreino({ navigation, route }) {
               text1: "Selecione a frequência!",
             });
 
-          if (frequency < 1 || frequency > 7)
+          if (frequency < 3 || frequency > 5)
             return Toast.show({
               type: "info",
               text1: "Frequência fora do limite permitido",
             });
 
           handleAddWorkoutToDataBase();
+        }}
+      />
+      <Button
+        title="Voltar"
+        style={{marginTop: 10}}
+        onPress={() => {
+          navigation.goBack()
         }}
       />
     </View>
