@@ -2,19 +2,16 @@ import {
   View,
   Text,
   StyleSheet,
-  Button,
   Dimensions,
   TouchableOpacity,
-  ScrollView,
   FlatList,
   Modal,
   SectionList,
 } from "react-native";
 import { React, useEffect, useState } from "react";
+import { useIsFocused } from "@react-navigation/native";
 import DropDownPicker from "react-native-dropdown-picker";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
-import Feather from "@expo/vector-icons/Feather";
-import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import Toast from "react-native-toast-message";
 import Hr from "../components/Hr";
@@ -33,6 +30,7 @@ import { createStackNavigator } from "@react-navigation/stack";
 import WelcomeScreen from "./WelcomeScreen";
 import WelcomeScreenDataNasc from "./WelcomeScreenDataNasc";
 import WelcomeScreenLastInfo from "./WelcomeScreenLastInfo";
+import { DATA } from "../assets/DATA";
 
 const auth = FIREBASE_AUTH;
 
@@ -47,12 +45,18 @@ DropDownPicker.setLanguage("BR");
 const windowWidth = Dimensions.get("window").width;
 
 export default Treino = ({ navigation, route }) => {
+  const [tachados, setTachados] = useState([]);
+  const [updated, setUpdated] = useState(false);
+  const [executarAoVoltar, setExecutarAoVoltar] = useState(false);
+  const isFocused = useIsFocused();
   const [hiddenWorkoutButton, setHiddenWorkoutButton] = useState(false);
   const [treinoData, setTreinoData] = useState([]);
   const [modalAddDefVisible, setModalAddDefVisible] = useState(false);
   const [defs, setDefs] = useState([]);
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState(null);
+
+  // Deficiências disponíveis
   const [items, setItems] = useState([
     { label: "Amputação de Braço", value: "Amputação de Braço" },
     { label: "Amputação de Perna", value: "Amputação de Perna" },
@@ -65,30 +69,28 @@ export default Treino = ({ navigation, route }) => {
     { label: "Lesão Medular", value: "Lesão Medular" },
     { label: "Distrofia Muscular", value: "Distrofia Muscular" },
     { label: "Esclerose Múltipla", value: "Esclerose Múltipla" },
- 
-    { label: "Síndrome de Down", value: "Síndrome de Down" },
-    {
-      label: "Dificuldades na Coordenação Motora",
-      value: "Dificuldades na Coordenação Motora",
-    },
     { label: "Doenças Reumáticas", value: "Doenças Reumáticas" },
   ]);
 
+  // frequência da série.
+  const frequencia_serie = "3x12";
+
   async function updateWorkout() {
     const docRef = doc(db, "workouts", auth.currentUser.email);
-  
+
     try {
       const docSnap = await getDoc(docRef);
       if (docSnap.exists()) {
         const workoutData = docSnap.data();
         const treino = workoutData.exercicios.map((dia) => ({
-          title: dia.dia, 
+          title: dia.dia,
           data: dia.exercicios.map((exercicio) => ({
-            nome: exercicio.musculo, 
-            exercicios: exercicio.exercicio 
+            nome: exercicio.musculo,
+            exercicios: exercicio.exercicio,
           })),
         }));
         setTreinoData(treino);
+        console.log(JSON.stringify(treinoData, null, 2));
       } else {
         return [];
       }
@@ -100,7 +102,6 @@ export default Treino = ({ navigation, route }) => {
       return [];
     }
   }
-
 
   async function setDeficiencia(value) {
     const actualDefs = await getDeficiencia();
@@ -175,15 +176,58 @@ export default Treino = ({ navigation, route }) => {
     }
   }
 
+  function toggleTachado(sectionIndex, exerciseGroupIndex, exerciseIndex) {
+    setTachados((prevState) => {
+      const newState = [...prevState];
+
+      if (!newState[sectionIndex]) newState[sectionIndex] = [];
+      if (!newState[sectionIndex][exerciseGroupIndex])
+        newState[sectionIndex][exerciseGroupIndex] = [];
+
+      const isTacheado =
+        newState[sectionIndex][exerciseGroupIndex].includes(exerciseIndex);
+
+      if (isTacheado) {
+        newState[sectionIndex][exerciseGroupIndex] = newState[sectionIndex][
+          exerciseGroupIndex
+        ].filter((idx) => idx !== exerciseIndex);
+      } else {
+        newState[sectionIndex][exerciseGroupIndex].push(exerciseIndex);
+      }
+
+      return newState;
+    });
+  }
+
+  function encontrarExercicio(nomeExercicio) {
+    for (const categoria of DATA) {
+      const exercicio = categoria.data.find((ex) => ex.nome === nomeExercicio);
+      if (exercicio) {
+        return exercicio;
+      }
+    }
+    return null;
+  }
+
   useEffect(() => {
     getDeficiencia();
   }, []);
 
   useEffect(() => {
-    updateWorkout();
-  }, []);
+    if (!isFocused) {
+      return;
+    }
 
-  
+    if (executarAoVoltar) {
+      updateWorkout();
+      setExecutarAoVoltar(false);
+    } else {
+      if (updated) return;
+      updateWorkout();
+      setUpdated(true);
+    }
+  }, [isFocused]);
+
   return (
     <View style={styles.container}>
       <View style={styles.viewMeuTreino}>
@@ -229,24 +273,25 @@ export default Treino = ({ navigation, route }) => {
             }}
           />
         </View>
-          <TouchableOpacity
-            style={styles.buttonAddNewWorkout}
-            onPress={() => {
-              if (defs.length == 0)
-                return Toast.show({
-                  type: "info",
-                  text1: "Você não tem nenhuma deficiência selecionada.",
-                });
-  
-              navigation.navigate("AdicionarNovoTreino", {
-                deficiencia: defs,
+        <TouchableOpacity
+          style={styles.buttonAddNewWorkout}
+          onPress={() => {
+            if (defs.length == 0)
+              return Toast.show({
+                type: "info",
+                text1: "Você não tem nenhuma deficiência selecionada.",
               });
-            }}
-          >
-            <Text style={styles.buttonAddNewWorkoutText}>
-              Nova rotina de treino
-            </Text>
-          </TouchableOpacity>
+
+            setExecutarAoVoltar(true);
+            navigation.navigate("AdicionarNovoTreino", {
+              deficiencia: defs,
+            });
+          }}
+        >
+          <Text style={styles.buttonAddNewWorkoutText}>
+            Nova rotina de treino
+          </Text>
+        </TouchableOpacity>
       </View>
       <Modal
         animationType="slide"
@@ -305,6 +350,7 @@ export default Treino = ({ navigation, route }) => {
         </View>
       </Modal>
 
+      {/* Rotina de treino */}
       <View style={styles.headerRotina}>
         <Text style={styles.headerRotinaText}>Rotina de treino</Text>
         <Hr />
@@ -313,32 +359,96 @@ export default Treino = ({ navigation, route }) => {
           <SectionList
             contentContainerStyle={styles.sectionList}
             sections={treinoData}
-            keyExtractor={(item, index) => item.nome + index}
+            keyExtractor={(item, index) => `${item.nome}-${index}`}
             renderSectionHeader={({ section: { title } }) => (
               <Text style={styles.diaText}>{title}</Text>
             )}
-            renderItem={({ item }) => (
-              <>
-                <Text style={styles.subHeaderMuscles}>{item.nome}</Text>
-                
-                  {item.exercicios.map((exercicio, idx) => (
-                    <View style={styles.exercicioContainer}>
-                      <Text key={idx} style={styles.exercicioText}>
-                        {exercicio}
+            renderItem={({ item, index: groupIndex, section }) => {
+              const sectionIndex = treinoData.findIndex(
+                (s) => s.title === section.title,
+              );
+              return (
+                <>
+                  <Text style={styles.subHeaderMuscles}>{item.nome}</Text>
+
+                  {item.exercicios.map((exercicio, exerciseIndex) => (
+                    <View
+                      style={[
+                        styles.exercicioContainer,
+                        tachados[sectionIndex]?.[groupIndex]?.includes(
+                          exerciseIndex,
+                        ) && { backgroundColor: "green" },
+                      ]}
+                      key={`${item.nome}-${exerciseIndex}`}
+                    >
+                      <Text
+                        style={[
+                          styles.exercicioText,
+                          tachados[sectionIndex]?.[groupIndex]?.includes(
+                            exerciseIndex,
+                          ) && { textDecorationLine: "line-through" },
+                        ]}
+                      >
+                        {exercicio} {frequencia_serie}
                       </Text>
                       <View style={styles.buttonsContainer}>
-                        <TouchableOpacity 
-                          style={styles.buttonConcluido} 
-                          onPress={() => {
-                            
-                          }}>
-                          <AntDesign name="checkcircleo" size={24} color="white" />
+                        <TouchableOpacity
+                          style={styles.buttonConcluido}
+                          onPress={() =>
+                            toggleTachado(
+                              sectionIndex,
+                              groupIndex,
+                              exerciseIndex,
+                            )
+                          }
+                        >
+                          <AntDesign
+                            name="checkcircleo"
+                            size={24}
+                            color="white"
+                          />
                         </TouchableOpacity>
+                        <TouchableOpacity
+                          style={styles.buttonInfo}
+                          onPress={() => {
+                            const exercicio_selecionado = exercicio;
+                            const res = encontrarExercicio(
+                              exercicio_selecionado,
+                            );
+
+                            navigation.navigate({
+                              name: "MyModal",
+                              params: {
+                                title: res.nome,
+                                mainText: res.mainText,
+                                videoRef: res.videoRef,
+                              },
+                            });
+                          }}
+                        >
+                          <AntDesign
+                            name="infocirlce"
+                            size={24}
+                            color="white"
+                          />
+                        </TouchableOpacity>
+                      </View>
                     </View>
-                  </View>
                   ))}
-                  
-              </>
+                </>
+              );
+            }}
+            ListEmptyComponent={() => (
+              <Text
+                style={{
+                  color: "white",
+                  fontSize: 20,
+                  marginTop: 15,
+                  fontFamily: "Urbanist",
+                }}
+              >
+                Não há rotina de treino. Crie uma!
+              </Text>
             )}
           />
         </View>
@@ -502,6 +612,11 @@ const styles = StyleSheet.create({
     padding: 5,
     borderRadius: 5,
   },
+  buttonInfo: {
+    backgroundColor: "orange",
+    padding: 5,
+    borderRadius: 5,
+  },
   buttonText: {
     color: "white",
   },
@@ -520,7 +635,7 @@ const styles = StyleSheet.create({
   },
   subHeaderMuscles: {
     fontFamily: "Urbanist",
-    color: 'white',
+    color: "white",
     fontSize: 20,
-  }
+  },
 });

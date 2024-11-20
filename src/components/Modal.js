@@ -9,6 +9,7 @@ import {
 import { Video, ResizeMode } from "expo-av";
 import * as React from "react";
 import { useState } from "react";
+import { videoMap } from "../assets/DATA";
 
 const windowWidth = Dimensions.get("window").width;
 const windowHeight = Dimensions.get("window").height;
@@ -21,21 +22,13 @@ const Modal = ({ navigation, route }) => {
       <Video
         style={styles.video}
         ref={video}
-        source={require("../../assets/videos/pullup.mp4")}
+        source={videoMap[route.params.videoRef]}
         isLooping
         isMuted={false}
         shouldPlay
         volume={0.3}
       />
-      <Text style={styles.mainTextStyle}>
-        {/* Colocar o mainText aqui.*/}"Lorem ipsum dolor sit amet, consectetur
-        adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore
-        magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco
-        laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor
-        in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
-        pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa
-        qui officia deserunt mollit anim id est laborum."
-      </Text>
+      <Text style={styles.mainTextStyle}>{route.params.mainText}</Text>
       <Pressable
         onPress={() => {
           navigation.goBack();
@@ -68,8 +61,7 @@ const styles = StyleSheet.create({
   mainTextStyle: {
     color: "white",
     fontSize: 20,
-    paddingHorizontal: 10,
-    textAlign: "justify",
+    padding: 10,
   },
   ViewStyle: {
     flex: 1,

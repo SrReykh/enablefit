@@ -5,6 +5,7 @@ import {
   TextInput,
   ActivityIndicator,
   Button,
+  TouchableOpacity,
 } from "react-native";
 import { useState } from "react";
 import CheckBox from "react-native-check-box";
@@ -23,78 +24,78 @@ export default function AdicionarNovoTreino({ navigation, route }) {
     "shadows-into-light": require("../../assets/fonts/ShadowsIntoLight-Regular.ttf"),
     Urbanist: require("../../assets/fonts/Urbanist-VariableFont_wght.ttf"),
   });
-  const [autoCreate, setAutoCreate] = useState(false);
   const [frequency, setFrequency] = useState("");
 
   const deficienciasTelaAnterior = route.params.deficiencia;
-  
-  function gerarTreinoAutomatico(deficiencia, frequenciaSemanal) {  
+
+  function gerarTreinoAutomatico(deficiencia, frequenciaSemanal) {
     const exerciciosSelecionadosProUsuario = deficiencia
-       .filter(def => def in exerciciosPorDeficiencia)
-       .map(def => exerciciosPorDeficiencia[def]);
-    
+      .filter((def) => def in exerciciosPorDeficiencia)
+      .map((def) => exerciciosPorDeficiencia[def]);
+
     // console.log(exerciciosSelecionadosProUsuario)
-    
+
     if (frequenciaSemanal == 3) {
       const rotinaDeTreino = [
         {
-          dia: 'Segunda',
+          dia: "Segunda",
           exercicios: [
             {
-              musculo: 'Costas',
-              exercicio: exerciciosSelecionadosProUsuario[0].Costas
+              musculo: "Costas",
+              exercicio: exerciciosSelecionadosProUsuario[0].Costas,
             },
             {
-              musculo: 'Biceps',
-              exercicio: exerciciosSelecionadosProUsuario[0].Biceps
+              musculo: "Biceps",
+              exercicio: exerciciosSelecionadosProUsuario[0].Biceps,
             },
-          ]
+          ],
         },
         {
-          dia: 'Quarta',
+          dia: "Quarta",
           exercicios: [
             {
-              musculo: 'Peito',
-              exercicio: exerciciosSelecionadosProUsuario[0].Peito
+              musculo: "Peito",
+              exercicio: exerciciosSelecionadosProUsuario[0].Peito,
             },
             {
-              musculo: 'Triceps',
-              exercicio: exerciciosSelecionadosProUsuario[0].Triceps
+              musculo: "Triceps",
+              exercicio: exerciciosSelecionadosProUsuario[0].Triceps,
             },
-          ]
+          ],
         },
         {
-          dia: 'Sexta',
+          dia: "Sexta",
           exercicios: [
             {
-              musculo: 'Perna',
-              exercicio: exerciciosSelecionadosProUsuario[0].Pernas
-            }
-          ]
+              musculo: "Perna",
+              exercicio: exerciciosSelecionadosProUsuario[0].Pernas,
+            },
+          ],
         },
-      ]
-      
+      ];
+
       // console.log(rotinaDeTreino)
-      return rotinaDeTreino
+      return rotinaDeTreino;
     }
-    
+
     if (frequenciaSemanal == 4) {
-      
     }
-    
-    if (frequenciaSemanal == 5 ) {
-      
+
+    if (frequenciaSemanal == 5) {
     }
   }
 
   async function handleAddWorkoutToDataBase() {
-    const rotinaDeTreino = gerarTreinoAutomatico(deficienciasTelaAnterior, frequency);
+    const rotinaDeTreino = gerarTreinoAutomatico(
+      deficienciasTelaAnterior,
+      frequency,
+    );
     // return console.log(JSON.stringify(exercicios, null, 2));
-    
+
     try {
       await setDoc(doc(db, "workouts", auth.currentUser.email), {
-        workout_id: "1",
-        user_id: "123",
+        workout_id: auth.currentUser.uid / 100,
+        user_id: auth.currentUser.uid,
         data_inicio: Date.now(),
         frequencia_semanal: frequency.toString(),
         exercicios: rotinaDeTreino,
@@ -105,7 +106,7 @@ export default function AdicionarNovoTreino({ navigation, route }) {
         text1: "Rotina criada com sucesso!",
       });
       navigation.navigate("BottomBar", {
-        hiddenButton: true
+        hiddenButton: true,
       });
     } catch (e) {
       console.log(e.message);
@@ -141,49 +142,46 @@ export default function AdicionarNovoTreino({ navigation, route }) {
         ))}
       </View>
 
-      <View style={styles.checkboxWrapper}>
-        <CheckBox
-          isChecked={true}
-          onClick={() => setAutoCreate(!autoCreate)}
-          checkBoxColor="white"
-        />
-        <Text style={styles.checkboxText}>Criação automática</Text>
-      </View>
-
       <Text style={styles.frequencyLabel}>Frequência semanal do treino:</Text>
       <TextInput
         style={styles.input}
-        placeholder="Ex: 3-5 vezes por semana"
+        placeholder="3-5 vezes por semana"
         placeholderTextColor="#a0a3bd"
         value={frequency}
         onChangeText={setFrequency}
         keyboardType="numeric"
       />
-      <Button
-        title="Gerar"
-        onPress={() => {
-          if (!frequency)
-            return Toast.show({
-              type: "info",
-              text1: "Selecione a frequência!",
-            });
+      <View style={{ gap: 10 }}>
+        <TouchableOpacity
+          style={styles.buttonGoBack}
+          onPress={() => {
+            if (!frequency)
+              return Toast.show({
+                type: "info",
+                text1: "Selecione a frequência!",
+              });
 
-          if (frequency < 3 || frequency > 5)
-            return Toast.show({
-              type: "info",
-              text1: "Frequência fora do limite permitido",
-            });
+            if (frequency < 3 || frequency > 5)
+              return Toast.show({
+                type: "info",
+                text1: "Frequência: 3-5 Por semana",
+              });
 
-          handleAddWorkoutToDataBase();
-        }}
-      />
-      <Button
-        title="Voltar"
-        style={{marginTop: 10}}
-        onPress={() => {
-          navigation.goBack()
-        }}
-      />
+            handleAddWorkoutToDataBase();
+          }}
+        >
+          <Text style={styles.buttonGoBackText}>Gerar treino</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.buttonGoBack}
+          onPress={() => {
+            navigation.goBack();
+          }}
+        >
+          <Text style={styles.buttonGoBackText}>Voltar</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 }
@@ -253,5 +251,18 @@ const styles = StyleSheet.create({
     marginLeft: 15,
     fontSize: 19,
     fontWeight: "bold",
+  },
+  buttonGoBack: {
+    width: 200,
+    height: 40,
+    backgroundColor: "white",
+    borderRadius: 10,
+    marginLeft: 15,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  buttonGoBackText: {
+    fontFamily: "Urbanist",
+    fontSize: 20,
   },
 });
