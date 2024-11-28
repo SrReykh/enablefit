@@ -6,6 +6,7 @@ import {
   Pressable,
   TextInput,
   Button,
+  Image,
   ActivityIndicator,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -85,10 +86,9 @@ const LoginPage = ({ navigation }) => {
         end={{ x: 0.5, y: 0 }}
       >
         <View style={styles.logo}>
-          <MaterialCommunityIcons
-            name="weight-lifter"
-            size={48}
-            color="white"
+          <Image
+            style={styles.imageLogo}
+            source={require("../../../assets/splash.png")}
           />
           <Text style={styles.title}>ENABLE FIT</Text>
         </View>
@@ -220,6 +220,10 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     gap: 15,
     alignItems: "center",
+  },
+  imageLogo: {
+    width: 80,
+    height: 80,
   },
   cadastrarView: {
     flexDirection: "row",

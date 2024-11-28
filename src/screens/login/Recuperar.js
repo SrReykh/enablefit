@@ -7,6 +7,7 @@ import {
   TextInput,
   Button,
   Alert,
+  Image,
   ActivityIndicator,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -93,10 +94,9 @@ const Recuperar = ({ navigation }) => {
         end={{ x: 0.5, y: 0 }}
       >
         <View style={styles.logo}>
-          <MaterialCommunityIcons
-            name="weight-lifter"
-            size={48}
-            color="white"
+          <Image
+            style={styles.imageLogo}
+            source={require("../../../assets/splash.png")}
           />
           <Text style={styles.title}>ENABLE FIT</Text>
         </View>
@@ -204,6 +204,10 @@ const styles = StyleSheet.create({
     borderRadius: 15,
     padding: 10,
     backgroundColor: "white",
+  },
+  imageLogo: {
+    width: 80,
+    height: 80,
   },
   googleBtnText: {
     fontSize: 18,

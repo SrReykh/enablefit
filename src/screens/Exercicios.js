@@ -12,27 +12,6 @@ import Modal from "../components/Modal";
 import { useFonts } from "expo-font";
 import { DATA } from "../assets/DATA";
 
-const Stack = createStackNavigator();
-
-const ExerciciosNavigator = () => {
-  return (
-    <Stack.Navigator>
-      <Stack.Group screenOptions={() => ({ headerShown: false })}>
-        <Stack.Screen name="Exercicios" component={Exercicios} />
-      </Stack.Group>
-      <Stack.Group
-        screenOptions={{
-          headerShown: false,
-          presentation: "modal",
-          cardStyle: { backgroundColor: "#292c41" },
-        }}
-      >
-        <Stack.Screen name="MyModal" component={Modal} />
-      </Stack.Group>
-    </Stack.Navigator>
-  );
-};
-
 const Exercicios = ({ navigation }) => {
   const [loaded] = useFonts({
     "shadows-into-light": require("../../assets/fonts/ShadowsIntoLight-Regular.ttf"),
@@ -55,32 +34,37 @@ const Exercicios = ({ navigation }) => {
   }
 
   return (
-    <SectionList
-      style={styles.SectionList}
-      sections={DATA}
-      renderItem={({ item }) => (
-        <View style={styles.exerciseView}>
-          <Button
-            style={styles.buttonStyle}
-            color="#282828"
-            title={item.nome}
-            onPress={() => {
-              navigation.navigate({
-                name: "MyModal",
-                params: {
-                  title: item.nome,
-                  mainText: item.mainText,
-                  videoRef: item.videoRef,
-                },
-              });
-            }}
-          />
-        </View>
-      )}
-      renderSectionHeader={({ section: { title } }) => (
-        <Text style={[styles.header]}>{title}</Text>
-      )}
-    />
+    <>
+      <SectionList
+        style={styles.SectionList}
+        sections={DATA}
+        renderItem={({ item }) => (
+          <View style={styles.exerciseView}>
+            <Button
+              style={styles.buttonStyle}
+              color="#282828"
+              title={item.nome}
+              onPress={() => {
+                navigation.navigate({
+                  name: "MyModal",
+                  params: {
+                    title: item.nome,
+                    mainText: item.mainText,
+                    videoRef: item.videoRef,
+                  },
+                });
+              }}
+            />
+          </View>
+        )}
+        renderSectionHeader={({ section: { title } }) => (
+          <Text style={[styles.header]}>{title}</Text>
+        )}
+      />
+      <Text style={styles.textCopyright}>
+        Todos exercícios extraídos do physitrack.com
+      </Text>
+    </>
   );
 };
 
@@ -101,6 +85,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,
     paddingTop: 4,
   },
+  textCopyright: {
+    color: "gray",
+    fontSize: 10,
+    paddingLeft: 15,
+    backgroundColor: "#292c41",
+  },
 });
 
-export default ExerciciosNavigator;
+export default Exercicios;

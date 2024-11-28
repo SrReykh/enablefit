@@ -20,6 +20,7 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { NavigationContainer } from "@react-navigation/native";
 import * as React from "react";
+import Modal from "./src/components/Modal";
 
 const Stack = createNativeStackNavigator();
 const auth = FIREBASE_AUTH;
@@ -114,7 +115,7 @@ export default function App({ navigation }) {
         <Stack.Navigator
           screenOptions={{
             headerShown: false,
-            presentation: "transparentModal",
+            presentation: "modal",
           }}
         >
           {user ? (
@@ -130,10 +131,12 @@ export default function App({ navigation }) {
                   component={WelcomeScreenLastInfo}
                 />
                 <Stack.Screen name="BottomBar" component={BottomBar} />
+                <Stack.Screen name="MyModal" component={Modal} />
               </>
             ) : (
               <>
                 <Stack.Screen name="BottomBar" component={BottomBar} />
+                <Stack.Screen name="MyModal" component={Modal} />
                 <Stack.Screen
                   name="AdicionarNovoTreino"
                   component={AdicionarNovoTreino}

@@ -28,13 +28,14 @@ export default function AdicionarNovoTreino({ navigation, route }) {
 
   const deficienciasTelaAnterior = route.params.deficiencia;
 
+  // De acordo com as deficiências do usuário, verifica a frequencia desejada pelo usuário e cria uma rotina de treino.
   function gerarTreinoAutomatico(deficiencia, frequenciaSemanal) {
     const exerciciosSelecionadosProUsuario = deficiencia
       .filter((def) => def in exerciciosPorDeficiencia)
       .map((def) => exerciciosPorDeficiencia[def]);
-
     // console.log(exerciciosSelecionadosProUsuario)
 
+    // Separa por o treino por dias, e o grupo muscular em cada dia
     if (frequenciaSemanal == 3) {
       const rotinaDeTreino = [
         {
@@ -79,12 +80,121 @@ export default function AdicionarNovoTreino({ navigation, route }) {
     }
 
     if (frequenciaSemanal == 4) {
+      const rotinaDeTreino = [
+        {
+          dia: "Segunda",
+          exercicios: [
+            {
+              musculo: "Costas",
+              exercicio: exerciciosSelecionadosProUsuario[0].Costas,
+            },
+            {
+              musculo: "Biceps",
+              exercicio: exerciciosSelecionadosProUsuario[0].Biceps,
+            },
+          ],
+        },
+        {
+          dia: "Terça",
+          exercicios: [
+            {
+              musculo: "Peito",
+              exercicio: exerciciosSelecionadosProUsuario[0].Peito,
+            },
+            {
+              musculo: "Triceps",
+              exercicio: exerciciosSelecionadosProUsuario[0].Triceps,
+            },
+          ],
+        },
+        {
+          dia: "Quinta",
+          exercicios: [
+            {
+              musculo: "Perna",
+              exercicio: exerciciosSelecionadosProUsuario[0].Pernas,
+            },
+          ],
+        },
+        {
+          dia: "Sexta",
+          exercicios: [
+            {
+              musculo: "Ombro",
+              exercicio: exerciciosSelecionadosProUsuario[0].Ombro,
+            },
+          ],
+        },
+      ];
+
+      return rotinaDeTreino;
     }
 
     if (frequenciaSemanal == 5) {
+      const rotinaDeTreino = [
+        {
+          dia: "Segunda",
+          exercicios: [
+            {
+              musculo: "Costas",
+              exercicio: exerciciosSelecionadosProUsuario[0].Costas,
+            },
+            {
+              musculo: "Biceps",
+              exercicio: exerciciosSelecionadosProUsuario[0].Biceps,
+            },
+          ],
+        },
+        {
+          dia: "Terça",
+          exercicios: [
+            {
+              musculo: "Peito",
+              exercicio: exerciciosSelecionadosProUsuario[0].Peito,
+            },
+            {
+              musculo: "Triceps",
+              exercicio: exerciciosSelecionadosProUsuario[0].Triceps,
+            },
+          ],
+        },
+        {
+          dia: "Quarta",
+          exercicios: [
+            {
+              musculo: "Perna",
+              exercicio: exerciciosSelecionadosProUsuario[0].Pernas,
+            },
+          ],
+        },
+        {
+          dia: "Quinta",
+          exercicios: [
+            {
+              musculo: "Ombro",
+              exercicio: exerciciosSelecionadosProUsuario[0].Ombro,
+            },
+          ],
+        },
+        {
+          dia: "Sexta",
+          exercicios: [
+            {
+              musculo: "Costas",
+              exercicio: exerciciosSelecionadosProUsuario[0].Costas,
+            },
+            {
+              musculo: "Biceps",
+              exercicio: exerciciosSelecionadosProUsuario[0].Biceps,
+            },
+          ],
+        },
+      ];
+      return rotinaDeTreino;
     }
   }
 
+  // Manda a rotina pro banco de dados
   async function handleAddWorkoutToDataBase() {
     const rotinaDeTreino = gerarTreinoAutomatico(
       deficienciasTelaAnterior,
@@ -94,7 +204,7 @@ export default function AdicionarNovoTreino({ navigation, route }) {
 
     try {
       await setDoc(doc(db, "workouts", auth.currentUser.email), {
-        workout_id: auth.currentUser.uid / 100,
+        workout_id: auth.currentUser.uid * 10,
         user_id: auth.currentUser.uid,
         data_inicio: Date.now(),
         frequencia_semanal: frequency.toString(),

@@ -7,6 +7,9 @@ import {
   FlatList,
   Modal,
   SectionList,
+  ScrollView,
+  TextInput,
+  Button,
 } from "react-native";
 import { React, useEffect, useState } from "react";
 import { useIsFocused } from "@react-navigation/native";
@@ -45,6 +48,11 @@ DropDownPicker.setLanguage("BR");
 const windowWidth = Dimensions.get("window").width;
 
 export default Treino = ({ navigation, route }) => {
+  const [modalStatusVisible, setModalStatusVisible] = useState(false);
+  const [pesoAdicionado, setPesoAdicionado] = useState(null);
+  const [metaAdicionada, setMetaAdicionada] = useState(null);
+  const [peso, setPeso] = useState(null);
+  const [meta, setMeta] = useState(null);
   const [tachados, setTachados] = useState([]);
   const [updated, setUpdated] = useState(false);
   const [executarAoVoltar, setExecutarAoVoltar] = useState(false);
@@ -209,6 +217,38 @@ export default Treino = ({ navigation, route }) => {
     return null;
   }
 
+  async function handleStatusAddButton() {
+    if (peso > 300 || peso < 30 || meta > 300 || meta < 30)
+      return Toast.show({
+        type: "info",
+        text1: "Escolha um peso ou meta válidos!",
+      });
+
+    setPesoAdicionado(peso);
+    setMetaAdicionada(meta);
+
+    try {
+      await setDoc(doc(db, "progress", auth.currentUser.email), {
+        peso: peso,
+        meta: meta,
+      });
+    } catch (e) {
+      throw Toast.show({
+        type: "error",
+        text1: "Erro ao atualizar peso.",
+      });
+    }
+
+    setModalStatusVisible(!modalStatusVisible);
+    Toast.show({
+      type: "success",
+      text1: "Peso atualizado com sucesso!",
+    });
+
+    setPeso(null);
+    setMeta(null);
+  }
+
   useEffect(() => {
     getDeficiencia();
   }, []);
@@ -273,26 +313,86 @@ export default Treino = ({ navigation, route }) => {
             }}
           />
         </View>
-        <TouchableOpacity
-          style={styles.buttonAddNewWorkout}
-          onPress={() => {
-            if (defs.length == 0)
-              return Toast.show({
-                type: "info",
-                text1: "Você não tem nenhuma deficiência selecionada.",
-              });
+        <View style={{ flexDirection: "row" }}>
+          <TouchableOpacity
+            style={styles.buttonAddNewWorkout}
+            onPress={() => {
+              if (defs.length == 0)
+                return Toast.show({
+                  type: "info",
+                  text1: "Você não tem nenhuma deficiência selecionada.",
+                });
 
-            setExecutarAoVoltar(true);
-            navigation.navigate("AdicionarNovoTreino", {
-              deficiencia: defs,
-            });
-          }}
-        >
-          <Text style={styles.buttonAddNewWorkoutText}>
-            Nova rotina de treino
-          </Text>
-        </TouchableOpacity>
+              setExecutarAoVoltar(true);
+              navigation.navigate("AdicionarNovoTreino", {
+                deficiencia: defs,
+              });
+            }}
+          >
+            <Text style={styles.buttonAddNewWorkoutText}>
+              Nova rotina de treino
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.buttonStatus}
+            onPress={() => {
+              setModalStatusVisible(!modalStatusVisible);
+            }}
+          >
+            <Text style={styles.buttonStatusText}>Mudar status</Text>
+          </TouchableOpacity>
+        </View>
       </View>
+
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={modalStatusVisible}
+      >
+        <View style={styles.viewModalStatusContainer}>
+          <View style={styles.modalStatus}>
+            <Text style={styles.label}>Peso atual (kg):</Text>
+            <TextInput
+              style={styles.input}
+              keyboardType="numeric"
+              placeholder="Digite seu peso"
+              value={peso}
+              onChangeText={(text) => {
+                setPeso(text);
+              }}
+            />
+            <Text style={styles.label}>Meta de peso (kg):</Text>
+            <TextInput
+              style={styles.input}
+              keyboardType="numeric"
+              placeholder="Digite sua meta"
+              value={meta}
+              onChangeText={(text) => {
+                setMeta(text);
+              }}
+            />
+
+            <TouchableOpacity
+              style={styles.BtnAdd}
+              onPress={() => {
+                handleStatusAddButton();
+              }}
+            >
+              <Text style={styles.btnAddText}>Adicionar</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.BtnAdd}
+              onPress={() => {
+                setModalStatusVisible(!modalStatusVisible);
+              }}
+            >
+              <Text style={styles.btnAddText}>Fechar</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
       <Modal
         animationType="slide"
         transparent={true}
@@ -350,107 +450,124 @@ export default Treino = ({ navigation, route }) => {
         </View>
       </Modal>
 
+      <Text style={styles.headerRotinaText}>Rotina de treino</Text>
+      <Hr />
       {/* Rotina de treino */}
-      <View style={styles.headerRotina}>
-        <Text style={styles.headerRotinaText}>Rotina de treino</Text>
-        <Hr />
+      <View style={styles.sectionListRootView}>
+        <SectionList
+          contentContainerStyle={styles.sectionList}
+          sections={treinoData}
+          keyExtractor={(item, index) => `${item.nome}-${index}`}
+          renderSectionHeader={({ section: { title } }) => (
+            <Text style={styles.diaText}>{title}</Text>
+          )}
+          renderItem={({ item, index: groupIndex, section }) => {
+            const sectionIndex = treinoData.findIndex(
+              (s) => s.title === section.title,
+            );
+            return (
+              <>
+                <Text style={styles.subHeaderMuscles}>{item.nome}</Text>
 
-        <View style={styles.sectionListRootView}>
-          <SectionList
-            contentContainerStyle={styles.sectionList}
-            sections={treinoData}
-            keyExtractor={(item, index) => `${item.nome}-${index}`}
-            renderSectionHeader={({ section: { title } }) => (
-              <Text style={styles.diaText}>{title}</Text>
-            )}
-            renderItem={({ item, index: groupIndex, section }) => {
-              const sectionIndex = treinoData.findIndex(
-                (s) => s.title === section.title,
-              );
-              return (
-                <>
-                  <Text style={styles.subHeaderMuscles}>{item.nome}</Text>
-
-                  {item.exercicios.map((exercicio, exerciseIndex) => (
-                    <View
+                {item.exercicios.map((exercicio, exerciseIndex) => (
+                  <View
+                    style={[
+                      styles.exercicioContainer,
+                      tachados[sectionIndex]?.[groupIndex]?.includes(
+                        exerciseIndex,
+                      ) && { backgroundColor: "green" },
+                    ]}
+                    key={`${item.nome}-${exerciseIndex}`}
+                  >
+                    <Text
                       style={[
-                        styles.exercicioContainer,
+                        styles.exercicioText,
                         tachados[sectionIndex]?.[groupIndex]?.includes(
                           exerciseIndex,
-                        ) && { backgroundColor: "green" },
+                        ) && { textDecorationLine: "line-through" },
                       ]}
-                      key={`${item.nome}-${exerciseIndex}`}
                     >
-                      <Text
-                        style={[
-                          styles.exercicioText,
-                          tachados[sectionIndex]?.[groupIndex]?.includes(
-                            exerciseIndex,
-                          ) && { textDecorationLine: "line-through" },
-                        ]}
+                      {exercicio} {frequencia_serie}
+                    </Text>
+                    <View style={styles.buttonsContainer}>
+                      <TouchableOpacity
+                        style={styles.buttonConcluido}
+                        onPress={() =>
+                          toggleTachado(sectionIndex, groupIndex, exerciseIndex)
+                        }
                       >
-                        {exercicio} {frequencia_serie}
-                      </Text>
-                      <View style={styles.buttonsContainer}>
-                        <TouchableOpacity
-                          style={styles.buttonConcluido}
-                          onPress={() =>
-                            toggleTachado(
-                              sectionIndex,
-                              groupIndex,
-                              exerciseIndex,
-                            )
-                          }
-                        >
-                          <AntDesign
-                            name="checkcircleo"
-                            size={24}
-                            color="white"
-                          />
-                        </TouchableOpacity>
-                        <TouchableOpacity
-                          style={styles.buttonInfo}
-                          onPress={() => {
-                            const exercicio_selecionado = exercicio;
-                            const res = encontrarExercicio(
-                              exercicio_selecionado,
-                            );
+                        <AntDesign
+                          name="checkcircleo"
+                          size={24}
+                          color="white"
+                        />
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                        style={styles.buttonInfo}
+                        onPress={() => {
+                          const exercicio_selecionado = exercicio;
+                          const res = encontrarExercicio(exercicio_selecionado);
 
-                            navigation.navigate({
-                              name: "MyModal",
-                              params: {
-                                title: res.nome,
-                                mainText: res.mainText,
-                                videoRef: res.videoRef,
-                              },
-                            });
-                          }}
-                        >
-                          <AntDesign
-                            name="infocirlce"
-                            size={24}
-                            color="white"
-                          />
-                        </TouchableOpacity>
-                      </View>
+                          navigation.navigate({
+                            name: "MyModal",
+                            params: {
+                              title: res.nome,
+                              mainText: res.mainText,
+                              videoRef: res.videoRef,
+                            },
+                          });
+                        }}
+                      >
+                        <AntDesign name="infocirlce" size={24} color="white" />
+                      </TouchableOpacity>
                     </View>
-                  ))}
-                </>
-              );
-            }}
-            ListEmptyComponent={() => (
-              <Text
-                style={{
-                  color: "white",
-                  fontSize: 20,
-                  marginTop: 15,
-                  fontFamily: "Urbanist",
-                }}
-              >
-                Não há rotina de treino. Crie uma!
-              </Text>
-            )}
-          />
+                  </View>
+                ))}
+              </>
+            );
+          }}
+          ListEmptyComponent={() => (
+            <Text
+              style={{
+                color: "white",
+                fontSize: 20,
+                marginTop: 15,
+                fontFamily: "Urbanist",
+              }}
+            >
+              Não há rotina de treino. Crie uma!
+            </Text>
+          )}
+        />
+      </View>
+      <View style={styles.StatusView}>
+        <Text style={styles.headerRotinaText}>Seu status</Text>
+        <Hr />
+
+        <View>
+          {pesoAdicionado ? (
+            <Text style={styles.statusStyle}>
+              Peso:{" "}
+              <Text style={styles.statusStyleText}>{pesoAdicionado} kgs</Text>
+            </Text>
+          ) : (
+            <Text style={styles.statusStyle}>
+              Peso: <Text style={styles.statusStyleText}>Adicione um peso</Text>
+            </Text>
+          )}
+        </View>
+        <View>
+          {metaAdicionada ? (
+            <Text style={styles.statusStyle}>
+              Peso:{" "}
+              <Text style={styles.statusStyleText}>{metaAdicionada} kgs</Text>
+            </Text>
+          ) : (
+            <Text style={styles.statusStyle}>
+              Peso:{" "}
+              <Text style={styles.statusStyleText}>Adicione uma meta</Text>
+            </Text>
+          )}
         </View>
       </View>
     </View>
@@ -637,5 +754,65 @@ const styles = StyleSheet.create({
     fontFamily: "Urbanist",
     color: "white",
     fontSize: 20,
+  },
+  statusStyle: {
+    color: "white",
+    fontFamily: "Urbanist",
+    fontSize: 25,
+    paddingLeft: 15,
+  },
+  statusStyleText: {
+    color: "white",
+    fontFamily: "Urbanist",
+    fontSize: 20,
+    paddingLeft: 15,
+  },
+  buttonStatus: {
+    marginTop: 10,
+    marginLeft: 15,
+    width: 130,
+    height: 40,
+    backgroundColor: "white",
+    borderRadius: 8,
+    padding: 5,
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 10,
+  },
+  buttonStatusText: {
+    fontFamily: "Urbanist",
+    fontSize: 20,
+    color: "black",
+    textAlign: "center",
+  },
+  viewModalStatusContainer: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  modalStatus: {
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#282828",
+    padding: 30,
+    borderRadius: 40,
+  },
+  label: {
+    fontSize: 20,
+    fontWeight: "bold",
+    marginBottom: 8,
+    fontFamily: "Urbanist",
+    color: "white",
+  },
+  input: {
+    width: 200,
+    height: 50,
+    borderColor: "#ccc",
+    borderWidth: 1,
+    borderRadius: 8,
+    paddingHorizontal: 10,
+    marginBottom: 20,
+    fontSize: 16,
+    backgroundColor: "#fff",
   },
 });

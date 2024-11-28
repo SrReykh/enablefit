@@ -66,6 +66,7 @@ const styles = StyleSheet.create({
   ViewStyle: {
     flex: 1,
     alignItems: "center",
+    backgroundColor: "#292c41",
   },
   videoView: {
     justifyContent: "center",

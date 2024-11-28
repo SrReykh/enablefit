@@ -7,6 +7,7 @@ import {
   TextInput,
   Button,
   Alert,
+  Image,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
@@ -88,10 +89,9 @@ const LoginPage = ({ navigation }) => {
         end={{ x: 0.5, y: 0 }}
       >
         <View style={styles.logo}>
-          <MaterialCommunityIcons
-            name="weight-lifter"
-            size={48}
-            color="white"
+          <Image
+            style={styles.imageLogo}
+            source={require("../../../assets/splash.png")}
           />
           <Text style={styles.title}>ENABLE FIT</Text>
         </View>
@@ -190,6 +190,10 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     gap: 10,
+  },
+  imageLogo: {
+    width: 80,
+    height: 80,
   },
   loginBtn: {
     width: windowWidth - 40,

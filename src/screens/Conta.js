@@ -104,7 +104,7 @@ const Conta = () => {
         type: "error",
         text1: "Você já está usando esse e-mail!",
       });
-
+      
     try {
       const authSucess = await reAuth();
       if (!authSucess) return;
